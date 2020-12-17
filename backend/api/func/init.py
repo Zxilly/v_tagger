@@ -1,7 +1,6 @@
 import json
-from peewee import *
 
-from db import db
+from .db import db, USER, VIDEO
 
 
 def init():
@@ -31,6 +30,8 @@ def init():
             }
             with open("../data/config.json", 'w+') as f:
                 f.write(json.dumps(config))
+            db.create_tables([USER, VIDEO])
+            checkstatus = True
         except Exception as e:
             print("连接失败： " + str(e) + " ，重试")
             sqladdress, sqlport, sqluser, sqlpassword, sqldbname = infocollect()

@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from func import login, init, db
+from func import user, init, db
 
 app = FastAPI()
 
@@ -31,9 +31,9 @@ async def root():
     return "There is nothing here."
 
 
-@app.post("/login/auth")
-async def loginauth(username: str, authcode: str):
-    return login.auth(username, authcode)
+@app.post("/user/auth")
+async def userauth(username: str, authcode: str):
+    return user.auth(username, authcode)
 
 
 if __name__ == '__main__':
