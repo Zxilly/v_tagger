@@ -3,22 +3,49 @@ from peewee import *
 
 
 def init():
+    checkstatus = False
     try:
         with open("../data/config.json", 'r+') as f:
             config = json.loads(f.read())
-    except:
-        check = False
-        while not check:
-            sqladdress = input("SQL地址是：")
-            sqlport = input("SQL端口是：")
-            sqluser = input("SQL用户是：")
-            sqlpassword = input("SQL用户密码是：")
-            sqldbname = input("指定给此程序的数据库是:")
-            mysql_db = MySQLDatabase('app_sql', user=sqluser, password=sqlpassword,
-                                     host=sqladdress, port=sqlport, charset='utf8mb4')
-            print(mysql_db.is_closed())
-            check = mysql_db.is_connection_usable()
-            if not check:
-                print("连接出错，请重新输入")
-            else:
-                print("连接成功")
+        sqladdress = config['sqladdress']
+        sqlport = config['sqlport']
+        sqluser = config['sqluser']
+        sqlpassword = config['sqlpassword']
+        sqldbname = config['sqldbname']
+    except FileNotFoundError:
+        sqladdress, sqlport, sqluser, sqlpassword, sqldbname = infocollect()
+
+    while not checkstatus:
+        try:
+            a = check(sqldbname, sqluser, sqlpassword, sqladdress, sqlport)
+            a.connect()
+            a.close()
+            print("连接成功")
+            config = {
+                'sqladdress': sqladdress,
+                'sqlport': sqlport,
+                'sqluser': sqluser,
+                'sqlpassword': sqlpassword,
+                'sqldbname': sqldbname
+            }
+            with open("../data/config.json", 'w+') as f:
+                f.write(json.dumps(config))
+            return a
+        except Exception as e:
+            print("连接失败： " + str(e) + " ，重试")
+            sqladdress, sqlport, sqluser, sqlpassword, sqldbname = infocollect()
+
+
+def check(sqldbname, sqluser, sqlpassword, sqladdress, sqlport):
+    mysql_db = MySQLDatabase(sqldbname, user=sqluser, password=sqlpassword,
+                             host=sqladdress, port=sqlport, charset='utf8mb4')
+    return mysql_db
+
+
+def infocollect():
+    sqladdress = input("SQL地址是：")
+    sqlport = int(input("SQL端口是："))
+    sqluser = input("SQL用户是：")
+    sqlpassword = input("SQL用户密码是：")
+    sqldbname = input("指定给此程序的数据库是:")
+    return sqladdress, sqlport, sqluser, sqlpassword, sqldbname
