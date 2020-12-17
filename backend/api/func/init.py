@@ -1,4 +1,6 @@
 import json
+from peewee import *
+
 
 def init():
     try:
@@ -12,3 +14,11 @@ def init():
             sqluser = input("SQL用户是：")
             sqlpassword = input("SQL用户密码是：")
             sqldbname = input("指定给此程序的数据库是:")
+            mysql_db = MySQLDatabase('app_sql', user=sqluser, password=sqlpassword,
+                                     host=sqladdress, port=sqlport, charset='utf8mb4')
+            print(mysql_db.is_closed())
+            check = mysql_db.is_connection_usable()
+            if not check:
+                print("连接出错，请重新输入")
+            else:
+                print("连接成功")
