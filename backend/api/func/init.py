@@ -1,6 +1,8 @@
 import json
 from peewee import *
 
+from db import db
+
 
 def init():
     checkstatus = False
@@ -17,9 +19,8 @@ def init():
 
     while not checkstatus:
         try:
-            a = check(sqldbname, sqluser, sqlpassword, sqladdress, sqlport)
-            a.connect()
-            a.close()
+            check(sqldbname, sqluser, sqlpassword, sqladdress, sqlport)
+            db.connect()
             print("连接成功")
             config = {
                 'sqladdress': sqladdress,
@@ -30,16 +31,13 @@ def init():
             }
             with open("../data/config.json", 'w+') as f:
                 f.write(json.dumps(config))
-            return a
         except Exception as e:
             print("连接失败： " + str(e) + " ，重试")
             sqladdress, sqlport, sqluser, sqlpassword, sqldbname = infocollect()
 
 
 def check(sqldbname, sqluser, sqlpassword, sqladdress, sqlport):
-    mysql_db = MySQLDatabase(sqldbname, user=sqluser, password=sqlpassword,
-                             host=sqladdress, port=sqlport, charset='utf8mb4')
-    return mysql_db
+    db.init(sqldbname, user=sqluser, password=sqlpassword, host=sqladdress, port=sqlport, charset='utf8mb4')
 
 
 def infocollect():

@@ -2,8 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from func import login, init
-from backend.api.func.db import db_proxy
+from func import login, init, db
 
 app = FastAPI()
 
@@ -14,6 +13,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def startup():
+    init.init()
+
+
+@app.on_event("shutdown")
+def shutdown():
+    if not db.db.is_closed():
+        db.db.close()
 
 
 @app.get("/")
@@ -27,6 +37,4 @@ async def loginauth(username: str, authcode: str):
 
 
 if __name__ == '__main__':
-    db = init.init()
-    db_proxy.initialize(db)
     uvicorn.run('app:app', port=23333, debug=True)

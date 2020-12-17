@@ -1,11 +1,11 @@
 from peewee import *
 
-db_proxy = DatabaseProxy()
+db = MySQLDatabase(None)
 
 
 class BaseModel(Model):
     class Meta:
-        database = db_proxy
+        database = db
 
 
 class USER(BaseModel):
