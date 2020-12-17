@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from func import user, init, db
@@ -31,9 +31,25 @@ async def root():
     return "There is nothing here."
 
 
-@app.post("/user/auth")
-async def userauth(username: str, authcode: str):
-    return user.auth(username, authcode)
+@app.post('/user/reg')
+async def userreg(username: str = Query(...),
+                  authcode: str = Body(..., embed=True)
+                  ):
+    return user.reg(username, authcode)
+
+
+@app.post("/user/login")
+async def userlogin(username: str = Query(...),
+                    authcode: str = Body(..., embed=True)
+                    ):
+    return user.login(username, authcode)
+
+
+@app.post('/user/auth')
+async def userauth(username: str = Query(...),
+                   session: str = Body(..., embed=True)
+                   ):
+    return user.auth(username, session)
 
 
 if __name__ == '__main__':
