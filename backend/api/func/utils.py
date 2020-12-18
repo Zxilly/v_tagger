@@ -1,6 +1,6 @@
 import hashlib
 import uuid
-from datetime import datetime, timezone,timedelta
+from datetime import datetime, timedelta
 
 from .db import USER
 
@@ -19,8 +19,10 @@ def auth(username: str, session: str):
 def getMD5(encryptstr: str):
     return hashlib.md5(encryptstr.encode()).hexdigest()
 
+
 def getSession():
     return getMD5(str(uuid.uuid4()))
+
 
 def timenow():
     return datetime.now()

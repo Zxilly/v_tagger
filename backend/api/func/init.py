@@ -3,7 +3,7 @@ import json
 from .db import db, USER, VIDEO
 
 
-def init():
+def init(quiet=True):
     checkstatus = False
     try:
         with open("../data/config.json", 'r+') as f:
@@ -20,7 +20,8 @@ def init():
         try:
             check(sqldbname, sqluser, sqlpassword, sqladdress, sqlport)
             db.connect()
-            print("连接成功")
+            if not quiet:
+                print("连接成功")
             config = {
                 'sqladdress': sqladdress,
                 'sqlport': sqlport,
@@ -33,7 +34,8 @@ def init():
             db.create_tables([USER, VIDEO])
             checkstatus = True
         except Exception as e:
-            print("连接失败： " + str(e) + " ，重试")
+            if not quiet:
+                print("连接失败： " + str(e) + " ，重试")
             sqladdress, sqlport, sqluser, sqlpassword, sqldbname = infocollect()
 
 

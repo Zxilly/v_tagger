@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, Body, Query
+from fastapi import FastAPI, Body, Query, Header
 from fastapi.middleware.cors import CORSMiddleware
 
 from func import user, init, db
@@ -47,7 +47,7 @@ async def userlogin(username: str = Query(...),
 
 @app.post('/user/auth')
 async def userauth(username: str = Query(...),
-                   session: str = Body(..., embed=True)
+                   session: str = Header(...)
                    ):
     return user.auth(username, session)
 
