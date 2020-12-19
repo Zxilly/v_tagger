@@ -1,17 +1,10 @@
-import getopt
-import sys
+import ffmpeg
+import os
 
-opts,args = getopt.getopt(sys.argv[1:],'-h-f:-v',['help','filename=','version'])
-print(opts)
-for opt_name,opt_value in opts:
-    if opt_name in ('-h','--help'):
-        print("[*] Help info")
-        sys.exit()
-    if opt_name in ('-v','--version'):
-        print("[*] Version is 0.01 ")
-        sys.exit()
-    if opt_name in ('-f','--filename'):
-        fileName = opt_value
-        print("[*] Filename is ",fileName)
-        # do something
-        sys.exit()
+
+# os.system('ffmpeg -version')
+
+probe = ffmpeg.probe(filename='a.mp4')
+video_info = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
+video_length = video_info['duration']
+print(video_length)

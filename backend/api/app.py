@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI, Body, Query, Header
 from fastapi.middleware.cors import CORSMiddleware
 
-from func import user, init, db
+from backend.api.func import user, init, db
 
 app = FastAPI()
 
@@ -50,6 +50,13 @@ async def userauth(username: str = Query(...),
                    session: str = Header(...)
                    ):
     return user.auth(username, session)
+
+
+@app.get('/video/getinfo')
+async def videogetinfo(username: str = Query(...),
+                       session: str = Header(...)
+                       ):
+
 
 
 if __name__ == '__main__':
