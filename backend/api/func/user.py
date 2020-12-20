@@ -13,7 +13,7 @@ def login(username: str, auth_code: str):
             user_record.session = getSession()
             user_record.sessioncreated = timenow()
             user_record.save()
-            return [0, "登陆成功",user_record.session]
+            return [0, "登陆成功", user_record.session]
         else:
             return [2, "密码错误"]
     else:

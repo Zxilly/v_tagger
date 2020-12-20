@@ -1,18 +1,19 @@
 import hashlib
-import uuid
+import json
 import shutil
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import ffmpeg
 
-from .db import USER, VIDEO,db
+from .db import USER, VIDEO, db
 from .init import init
 
 
 def auth(username: str, session: str):
     auth_record = USER.get_or_none(USER.studentID == username)
-    if session == auth_record.session:
+    if auth_record and session == auth_record.session:
         if timenow() - auth_record.sessioncreated < timedelta(days=15):  # 15天
             return [4, "session 有效"]
         else:
@@ -46,11 +47,11 @@ def searchpath(path: str):
                 ignore_count += 1
                 continue
             info = {
-                "length": video_length,
-                "clip": []
+                "length": round(float(video_length), 1),
+                "clip": [],
             }
-            shutil.copyfile(item.absolute(),'../data/'+fileMD5+'.mp4')
-            VIDEO.create(hash=fileMD5, info=info)
+            shutil.copyfile(item.absolute(), '../data/' + fileMD5 + '.mp4')
+            VIDEO.create(hash=fileMD5, info=json.dumps(info), tagstatus=False)
             handle_count += 1
     print("Handle %d files and ignore %d files" % (handle_count, ignore_count))
 

@@ -1,8 +1,8 @@
 import uvicorn
-from fastapi import FastAPI, Body, Query, Header
+from fastapi import FastAPI, Body, Query, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api.func import user, init, db
+from backend.api.func import user, init, db, video, utils, model
 
 app = FastAPI()
 
@@ -56,7 +56,22 @@ async def userauth(username: str = Query(...),
 async def videogetinfo(username: str = Query(...),
                        session: str = Header(...)
                        ):
+    if utils.auth(username, session) == 4:
+        return video.getinfo()
+    else:
+        raise HTTPException(status_code=403, detail="Fobidden")
 
+
+@app.post('/video/setinfo')
+async def videogetinfo(username: str = Query(...),
+                       session: str = Header(...),
+                       info: model.setInfo = Body(...),
+                       tagstatus: bool = Body(False, embed=True)
+                       ):
+    if utils.auth(username, session):
+        return video.setinfo(info,tagstatus)
+    else:
+        raise HTTPException(status_code=403, detail="Fobidden")
 
 
 if __name__ == '__main__':
