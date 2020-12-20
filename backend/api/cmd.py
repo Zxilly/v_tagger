@@ -1,7 +1,6 @@
 import getopt
 import sys
 
-
 from func.db import db
 from func.init import init
 from func.utils import searchpath
@@ -29,7 +28,6 @@ def handle(argv):
         if opt_name in ('-s', '--searchpath'):
             searchpath(opt_value)
             sys.exit()
-
 
 
 if __name__ == '__main__':

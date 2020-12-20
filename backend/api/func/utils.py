@@ -1,10 +1,13 @@
 import hashlib
 import uuid
+import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
+
 import ffmpeg
 
-from .db import USER
+from .db import USER, VIDEO,db
+from .init import init
 
 
 def auth(username: str, session: str):
@@ -19,18 +22,37 @@ def auth(username: str, session: str):
 
 
 def searchpath(path: str):
+    if db.is_closed():
+        init()
+    handle_count = 0
+    ignore_count = 0
     basepath = Path(path)
+    if not basepath.is_dir():
+        raise Exception("Argument is not a dir.")
     files_in_basepath = (entry for entry in basepath.iterdir() if entry.is_file())
     for item in files_in_basepath:
         if item.name.split(".")[-1] in ['mp4']:
             print(item.name)
             with item.open(mode="rb") as f:
                 fileMD5 = getBinaryMD5(f.read(1024 * 200))
-            tagger = []
+            if VIDEO.get_or_none(VIDEO.hash == fileMD5):
+                ignore_count += 1
+                continue
+            probe = ffmpeg.probe(filename=item.absolute())
+            video_info = next((stream for stream in probe['streams'] if stream['codec_type'] == 'video'), None)
+            try:
+                video_length = video_info['duration']
+            except KeyError:
+                ignore_count += 1
+                continue
             info = {
-                "length": timedelta,
-
+                "length": video_length,
+                "clip": []
             }
+            shutil.copyfile(item.absolute(),'../data/'+fileMD5+'.mp4')
+            VIDEO.create(hash=fileMD5, info=info)
+            handle_count += 1
+    print("Handle %d files and ignore %d files" % (handle_count, ignore_count))
 
 
 def getMD5(encryptstr: str):

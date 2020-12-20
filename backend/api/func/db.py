@@ -21,5 +21,4 @@ class USER(BaseModel):
 
 class VIDEO(BaseModel):
     hash = FixedCharField(max_length=35,primary_key=True)
-    tagger = TextField()  # json格式，存 UUID list
     info = TextField()
