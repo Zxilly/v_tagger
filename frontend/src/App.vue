@@ -1,5 +1,25 @@
 <template>
   <v-app>
+    <v-main>
+      <v-snackbar
+          v-model="snackbarBool"
+          :color="snackbarColor"
+          top
+          dark
+      >
+        {{ snackbarMessage }}
+        <template v-slot:action="{ attrs }">
+          <v-btn
+              dark
+              text
+              v-bind="attrs"
+              @click="snackbarBool = false"
+          >
+            关闭
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </v-main>
   </v-app>
 </template>
 
@@ -15,14 +35,22 @@ export default {
     }
   },
   data: () => ({
-    "user": "",
-    "authCode": "",
-    "waiting": true,
-    "logined": false,
-    "loginAttempt": false,
-    "authedAxios": null,
+    user: "",
+    authCode: "",
+    waiting: true,
+    logined: false,
+    loginAttempt: false,
+    authedAxios: null,
+    snackbarBool: false,
+    snackbarMessage: '',
+    snackbarColor: '',
   }),
   methods: {
+    showSnackbar: function (arg) {
+      this.snackbarMessage = arg[0]
+      this.snackbarColor = arg[1]
+      this.snackbarBool = true
+    },
     checkLocalUserStatus: function () {
       if (localStorage.getItem("exist")) {
         this.user = localStorage.getItem("user");
@@ -44,8 +72,10 @@ export default {
           }
       ).then((resp) => {
         let data = resp.data
-        if (data[0]===0){
-          
+        if (data[0] === 0) {
+          this.showSnackbar([data[1]])
+          sessionStorage.setItem("session",data[2])
+          // TODO:路由跳转
         }
       })
     }
