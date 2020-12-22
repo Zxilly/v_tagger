@@ -32,28 +32,28 @@ async def root():
 
 
 @app.post('/user/reg')
-async def userreg(username: str = Query(...),
+async def user_reg(username: str = Query(...),
                   authcode: str = Body(..., embed=True)
                   ):
     return user.reg(username, authcode)
 
 
 @app.post("/user/login")
-async def userlogin(username: str = Query(...),
+async def user_login(username: str = Query(...),
                     authcode: str = Body(..., embed=True)
                     ):
     return user.login(username, authcode)
 
 
 @app.post('/user/auth')
-async def userauth(username: str = Query(...),
+async def user_auth(username: str = Query(...),
                    session: str = Header(...)
                    ):
     return user.auth(username, session)
 
 
 @app.get('/video/getinfo')
-async def videogetinfo(username: str = Query(...),
+async def video_getinfo(username: str = Query(...),
                        session: str = Header(...)
                        ):
     if utils.auth(username, session) == 4:
@@ -63,13 +63,13 @@ async def videogetinfo(username: str = Query(...),
 
 
 @app.post('/video/setinfo')
-async def videogetinfo(username: str = Query(...),
+async def video_getinfo(username: str = Query(...),
                        session: str = Header(...),
                        info: model.setInfo = Body(...),
                        tagstatus: bool = Body(False, embed=True)
                        ):
     if utils.auth(username, session):
-        return video.setinfo(info,tagstatus)
+        return video.setinfo(info, tagstatus)
     else:
         raise HTTPException(status_code=403, detail="Fobidden")
 

@@ -1,1 +1,1 @@
-var apiurl = "http://localhost:8000"
+export var apiurl = "http://localhost:23333"

@@ -1,35 +1,30 @@
 <template>
-<v-app>
-  <cheader
-
-  />
-</v-app>
+  <v-app>
+  </v-app>
 </template>
 
 <script>
+import {apiurl} from "./config"
 
-import Cheader from "@/components/cheader";
 export default {
   name: 'App',
-  components: {
-    Cheader
-  },
+  components: {},
   created() {
-    if(this.checkLocalUserStatus()){
-      this.loginAttempt = true;
+    if (this.checkLocalUserStatus()) {
+      this.login()
     }
   },
   data: () => ({
-    "user":"",
-    "authCode":"",
-    "waiting":true,
-    "logined":false,
-    "loginAttempt":false,
-    "authedAxios":null,
+    "user": "",
+    "authCode": "",
+    "waiting": true,
+    "logined": false,
+    "loginAttempt": false,
+    "authedAxios": null,
   }),
-  methods:{
-    checkLocalUserStatus:function () {
-      if(localStorage.getItem("exist")){
+  methods: {
+    checkLocalUserStatus: function () {
+      if (localStorage.getItem("exist")) {
         this.user = localStorage.getItem("user");
         this.authCode = localStorage.getItem("authCode");
         return true;
@@ -37,9 +32,21 @@ export default {
         return false;
       }
     },
-    login:function (){
-      this.$axios({
-
+    login: function () {
+      this.$axios.post(
+          apiurl + "/user/login",
+          {
+            "authcode": this.authCode
+          }, {
+            params: {
+              'username': this.user
+            }
+          }
+      ).then((resp) => {
+        let data = resp.data
+        if (data[0]===0){
+          
+        }
       })
     }
   }
