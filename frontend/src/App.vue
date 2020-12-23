@@ -31,12 +31,13 @@ export default {
   components: {},
   created() {
     if (this.checkLocalUserStatus()) {
-      this.login()
+      this.auth()
     }
   },
   data: () => ({
     user: "",
     authCode: "",
+    session: "",
     waiting: true,
     logined: false,
     loginAttempt: false,
@@ -54,7 +55,7 @@ export default {
     checkLocalUserStatus: function () {
       if (localStorage.getItem("exist")) {
         this.user = localStorage.getItem("user");
-        this.authCode = localStorage.getItem("authCode");
+        this.session = localStorage.getItem("session");
         return true;
       } else {
         return false;
@@ -74,8 +75,30 @@ export default {
         let data = resp.data
         if (data[0] === 0) {
           this.showSnackbar([data[1]])
-          sessionStorage.setItem("session",data[2])
-          // TODO:路由跳转
+          localStorage.setItem("user",this.user)
+          localStorage.setItem("session",data[2])
+          this.session = data[2]
+        }
+      })
+    },
+    auth: function () {
+      this.$axios.post(
+          apiurl+"/user/auth",
+          {},{
+            params: {
+              'username': this.user
+            },
+            headers: {
+              'session': this.session
+            }
+          }
+      ).then((resp)=>{
+        let data = resp.data
+        if(data[0]===4){
+          // session有效,跳转到 /work/tag
+
+        } else {
+          //session 无效，跳转到 /user/login
         }
       })
     }

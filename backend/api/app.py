@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI, Body, Query, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api.func import user, init, db, video, utils, model
+from func import user, init, db, video, utils, model
 
 app = FastAPI()
 
