@@ -9,9 +9,9 @@ from .model import setInfo
 
 
 def getinfo():
-    if VIDEO.select().where(VIDEO.tagstatus is False).count() == 0:
+    if VIDEO.select().where(VIDEO.tagstatus == 0).count() == 0:
         raise HTTPException(status_code=503, detail="No more video to tag.")
-    rand_record = VIDEO.select().where(VIDEO.tagstatus is False).order_by(fn.Rand()).limit(1)[0]
+    rand_record = VIDEO.select().where(VIDEO.tagstatus == 0).order_by(fn.Rand()).limit(1)[0]
     return_value = {
         'hash': rand_record.hash,
         'info': json.loads(rand_record.info)

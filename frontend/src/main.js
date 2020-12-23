@@ -8,8 +8,10 @@ import login from '@/components/user/login'
 
 import addtag from "@/components/work/addtag";
 import notfound from "@/components/page/notfound";
+import welcome from "@/components/page/welcome";
 
 import axios from 'axios'
+
 
 
 Vue.use(VueRouter)
@@ -24,7 +26,7 @@ const router = new VueRouter({
   routes: [
     {
       path:'/',
-      component: App
+      component: welcome
     },
     {
       path:'/user/reg',

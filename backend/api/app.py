@@ -56,7 +56,7 @@ async def user_auth(username: str = Query(...),
 async def video_getinfo(username: str = Query(...),
                        session: str = Header(...)
                        ):
-    if utils.auth(username, session) == 4:
+    if utils.auth(username, session)[0] == 4:
         return video.getinfo()
     else:
         raise HTTPException(status_code=403, detail="Fobidden")
