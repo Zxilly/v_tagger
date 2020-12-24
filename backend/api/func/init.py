@@ -6,7 +6,7 @@ from .db import db, USER, VIDEO
 def init(quiet=True):
     checkstatus = False
     try:
-        with open("../data/config.json", 'r+') as f:
+        with open("../config.json", 'r+') as f:
             config = json.loads(f.read())
         sqladdress = config['sqladdress']
         sqlport = config['sqlport']
@@ -29,7 +29,7 @@ def init(quiet=True):
                 'sqlpassword': sqlpassword,
                 'sqldbname': sqldbname
             }
-            with open("../data/config.json", 'w+') as f:
+            with open("../config.json", 'w+') as f:
                 f.write(json.dumps(config))
             db.create_tables([USER, VIDEO])
             checkstatus = True

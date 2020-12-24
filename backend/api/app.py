@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI, Body, Query, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from func import user, init, db, video, utils, model
 
@@ -14,6 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/video/data", StaticFiles(directory="../data/"), name="static")
 
 @app.on_event("startup")
 def startup():
@@ -33,29 +35,29 @@ async def root():
 
 @app.post('/user/reg')
 async def user_reg(username: str = Query(...),
-                  authcode: str = Body(..., embed=True)
-                  ):
+                   authcode: str = Body(..., embed=True)
+                   ):
     return user.reg(username, authcode)
 
 
 @app.post("/user/login")
 async def user_login(username: str = Query(...),
-                    authcode: str = Body(..., embed=True)
-                    ):
+                     authcode: str = Body(..., embed=True)
+                     ):
     return user.login(username, authcode)
 
 
 @app.post('/user/auth')
 async def user_auth(username: str = Query(...),
-                   session: str = Header(...)
-                   ):
+                    session: str = Header(...)
+                    ):
     return user.auth(username, session)
 
 
 @app.get('/video/getinfo')
 async def video_getinfo(username: str = Query(...),
-                       session: str = Header(...)
-                       ):
+                        session: str = Header(...)
+                        ):
     if utils.auth(username, session)[0] == 4:
         return video.getinfo()
     else:
@@ -64,10 +66,10 @@ async def video_getinfo(username: str = Query(...),
 
 @app.post('/video/setinfo')
 async def video_getinfo(username: str = Query(...),
-                       session: str = Header(...),
-                       info: model.setInfo = Body(...),
-                       tagstatus: bool = Body(False, embed=True)
-                       ):
+                        session: str = Header(...),
+                        info: model.setInfo = Body(...),
+                        tagstatus: bool = Body(False, embed=True)
+                        ):
     if utils.auth(username, session):
         return video.setinfo(info, tagstatus)
     else:

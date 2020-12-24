@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <cheader
-        :title="title"
+        :title="titleword"
         :loginstatus="logined"
         @logout="logout"
     />
@@ -39,8 +39,7 @@ export default {
   name: 'App',
   components: {Cheader},
   created() {
-    if(this.$route.path!=='/')
-    {
+    if (this.$route.path !== '/') {
       this.$router.push('/')
     }
     if (this.checkLocalUserStatus()) {
@@ -49,20 +48,37 @@ export default {
       this.$router.push('/user/login')
     }
   },
+  mounted() {
+    this.$bus.$on('login', this.loginevent)
+    this.$bus.$on('reg', this.regevent)
+  },
   data: () => ({
     user: "",
     authCode: "",
     session: "",
-    waiting: true,
+    // waiting: true,
     logined: false,
     // loginAttempt: false,
     authedAxios: null,
     snackbarBool: false,
     snackbarMessage: '',
     snackbarColor: '',
-    title: "",
-    video:null
+    title: {
+      '/': 'Welcome',
+      '/user/reg': 'Register',
+      '/user/login': 'Login',
+    },
+    video: null
   }),
+  computed: {
+    titleword: function () {
+      if (this.$route.path.indexOf('/work/addtag/') === -1) {
+        return this.title[this.$route.path]
+      } else {
+        return 'Tagging'
+      }
+    }
+  },
   methods: {
     showSnackbar: function (arg) {
       this.snackbarMessage = arg[0]
@@ -73,10 +89,43 @@ export default {
       if (localStorage.getItem("exist")) {
         this.user = localStorage.getItem("user");
         this.session = localStorage.getItem("session");
-        return true;
+        return true
       } else {
-        return false;
+        return false
       }
+    },
+    regevent: function ([sn_value, authcode]) {
+      this.user = sn_value
+      this.authCode = authcode
+      this.reg()
+    },
+    reg: function () {
+      this.$axios.post(
+          apiurl + "/user/reg",
+          {
+            "authcode": this.authCode
+          }, {
+            params: {
+              'username': this.user
+            }
+          }
+      ).then((resp)=>{
+        let data = resp.data
+        if (data[0]===6){
+          this.showSnackbar([data[1], 'error'])
+        } else {
+          localStorage.setItem("exist",1)
+          localStorage.setItem("user", this.user)
+          localStorage.setItem("session", data[2])
+          this.session = data[2]
+          this.auth()
+        }
+      })
+    },
+    loginevent: function ([sn_value, authcode]) {
+      this.user = sn_value
+      this.authCode = authcode
+      this.login()
     },
     login: function () {
       this.$axios.post(
@@ -91,10 +140,14 @@ export default {
       ).then((resp) => {
         let data = resp.data
         if (data[0] === 0) {
-          this.showSnackbar([data[1]])
+          this.showSnackbar([data[1], 'success'])
+          localStorage.setItem("exist",1)
           localStorage.setItem("user", this.user)
           localStorage.setItem("session", data[2])
           this.session = data[2]
+          this.auth()
+        } else {
+          this.showSnackbar([data[1], 'error'])
         }
       })
     },
@@ -112,10 +165,11 @@ export default {
       ).then((resp) => {
         let data = resp.data
         if (data[0] === 4) {
+          this.logined = true
           // session有效,跳转到 /work/tag
           this.showSnackbar([data[1], 'success'])
           this.authedAxios = this.$axios.create({
-            baseURL:apiurl,
+            baseURL: apiurl,
             params: {
               'username': this.user
             },
@@ -123,10 +177,12 @@ export default {
               'session': this.session
             }
           })
-          this.getInfo().then(()=>{
-            this.$router.push('/work/addtag/'+this.video.hash)
+          this.getInfo().then(() => {
+            this.$router.push('/work/addtag/' + this.video.hash)
+          }).catch(() => {
           })
         } else {
+          this.$router.push('/user/login')
           //session 无效，跳转到 /user/login
         }
       })
@@ -137,18 +193,24 @@ export default {
       localStorage.removeItem('exist')
     },
     getInfo: function () {
-      return new Promise((resolve) =>{
-        this.authedAxios.get('/video/getinfo').then((resp)=>{
+      return new Promise((resolve, reject) => {
+        this.authedAxios.get('/video/getinfo').then((resp) => {
           let data = resp.data
-          console.log(data)
-          this.showSnackbar([data[1],'success'])
+          // console.log(data)
+          this.showSnackbar([data[1], 'success'])
           this.video = data[2]
           // console.log(this.video)
           resolve()
+        }).catch((resp) => {
+          let status = resp.status
+          if (status === 503) {
+            this.showSnackbar(['No more video to tag', 'error'])
+            reject()
+          } else {
+            this.showSnackbar(['Unknown error, please contact developer.'], 'error')
+          }
         })
       })
-
-
     }
   }
 };

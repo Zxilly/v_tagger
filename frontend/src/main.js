@@ -11,15 +11,19 @@ import notfound from "@/components/page/notfound";
 import welcome from "@/components/page/welcome";
 
 import axios from 'axios'
+import md5 from 'js-md5'
+import VueVideoPlayer from 'vue-video-player'
 
-
+import 'video.js/dist/video-js.css'
 
 Vue.use(VueRouter)
-
+Vue.use(VueVideoPlayer)
 
 Vue.config.productionTip = false
 
 Vue.prototype.$axios = axios;
+Vue.prototype.$md5 = md5
+Vue.prototype.$bus = new Vue()
 
 
 const router = new VueRouter({

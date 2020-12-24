@@ -10,8 +10,10 @@
   "dependencies": {
     "axios": "^0.21.0",
     "core-js": "^3.6.5",
+    "js-md5": "^0.7.3",
     "vue": "^2.6.11",
     "vue-router": "^3.4.9",
+    "vue-video-player": "^5.0.2",
     "vuetify": "^2.2.11"
   },
   "devDependencies": {

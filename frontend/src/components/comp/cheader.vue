@@ -15,20 +15,14 @@
     <v-spacer/>
     <v-btn
         text
+        class="float-right"
         v-if="loginstatus"
-        @click="this.$emit('logout')"
     >
       <v-icon left>
         mdi-logout
       </v-icon>
       Logout
     </v-btn>
-<!--    <v-btn text v-else>
-      <v-icon left>
-        mdi-login
-      </v-icon>
-      &nbsp;Log in
-    </v-btn>-->
   </v-app-bar>
 </template>
 
