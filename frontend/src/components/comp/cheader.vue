@@ -17,6 +17,7 @@
         text
         class="float-right"
         v-if="loginstatus"
+        @click="logout"
     >
       <v-icon left>
         mdi-logout
@@ -33,6 +34,11 @@ export default {
     title: String,
     loginstatus: Boolean,
   },
+  methods:{
+    logout:function () {
+      this.$bus.$emit("logout")
+    }
+  }
 }
 </script>
 

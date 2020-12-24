@@ -7,7 +7,7 @@
         lg="4"
         class="my-12"
     >
-      <v-card>
+      <v-card class="pa-3">
         <v-card-title>登录</v-card-title>
         <v-card-text
             class="d-flex flex-column"

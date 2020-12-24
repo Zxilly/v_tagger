@@ -1,22 +1,27 @@
 <template>
-<v-row>
+  <v-row>
+    <v-col cols="8">
+      
+    </v-col>
+    <v-col cols="8">
 
-</v-row>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
 export default {
   name: "addtag",
   data: () => ({
-    saved:false
+    saved: false
   }),
-  computed:{
-    hash:function () {
+  computed: {
+    hash: function () {
       return this.$route.params.hash
     }
   },
-  beforeRouteLeave (to, from, next) {
-    if (!this.saved){
+  beforeRouteLeave(to, from, next) {
+    if (!this.saved) {
       const answer = window.confirm('Do you really want to leave? You have unsaved changes!')
       if (answer) {
         next()

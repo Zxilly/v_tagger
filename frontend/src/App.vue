@@ -51,6 +51,7 @@ export default {
   mounted() {
     this.$bus.$on('login', this.loginevent)
     this.$bus.$on('reg', this.regevent)
+    this.$bus.$on('logout', this.logout)
   },
   data: () => ({
     user: "",
@@ -191,6 +192,7 @@ export default {
       localStorage.removeItem('session')
       localStorage.removeItem('user')
       localStorage.removeItem('exist')
+      this.$router.push("/")
     },
     getInfo: function () {
       return new Promise((resolve, reject) => {
