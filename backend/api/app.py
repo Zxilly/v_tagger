@@ -17,6 +17,9 @@ app.add_middleware(
 
 app.mount("/video/data", StaticFiles(directory="../data/"), name="static")
 
+
+# Just for test, uvicorn not support range request. Will use nginx to serve the files in the release.
+
 @app.on_event("startup")
 def startup():
     init.init()
@@ -74,6 +77,11 @@ async def video_getinfo(username: str = Query(...),
         return video.setinfo(info, tagstatus)
     else:
         raise HTTPException(status_code=403, detail="Fobidden")
+
+
+@app.get('/video/gettags')
+async def video_gettags():
+    return video.gettags()
 
 
 if __name__ == '__main__':

@@ -32,3 +32,8 @@ def setinfo(info: setInfo, tagstatus: bool):
         record.tagstatus = tagstatus
         record.save()
         return [9, "保存成功"]
+
+def gettags():
+    with open('tag.json','r') as f:
+        tags = json.loads(f.read())
+    return tags

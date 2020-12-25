@@ -52,6 +52,7 @@ export default {
     this.$bus.$on('login', this.loginevent)
     this.$bus.$on('reg', this.regevent)
     this.$bus.$on('logout', this.logout)
+    this.$bus.$on('snackbar', this.showSnackbar)
   },
   data: () => ({
     user: "",
