@@ -68,13 +68,26 @@
     <v-dialog
         v-model="dialog"
         persistent
-        max-width="500"
+        max-width="600px"
     >
       <v-card>
-        <v-card-title class="headline">
-          Add Tag
+        <v-card-title>
+          <span class="headline">Add Tag</span>
         </v-card-title>
+        <v-card-text>
+          <v-autocomplete
+              :items="tags"
+              v-model="clip_tag_tmp"
+          />
+        </v-card-text>
         <v-card-actions>
+          <v-btn
+              color="red darken-1"
+              text
+              @click="deletechip"
+          >
+            Delete Chip
+          </v-btn>
           <v-spacer></v-spacer>
           <v-btn
               color="red darken-1"
@@ -107,8 +120,15 @@ export default {
     clips: [],
     init: false,
     dialog: false,
-    clip_start_tmp:Number,
+    clip_start_tmp: Number,
+    clip_tag_tmp: String,
+    tags: null,
   }),
+  mounted() {
+    this.$axios.get(apiurl + '/video/gettags').then((resp) => {
+      this.tags = resp.data
+    })
+  },
   computed: {
     hash: function () {
       return this.$route.params.hash
@@ -141,12 +161,22 @@ export default {
   },
   methods: {
     updatechip: function (start) {
-      this.dialog=true
-      this.clip_start_tmp=start
-
+      this.dialog = true
+      this.clip_start_tmp = start
     },
     savechip: function () {
-
+      for (let clip of this.clips) {
+        if (clip.start===this.clip_start_tmp){
+          clip.tag=this.clip_tag_tmp
+          this.dialog=false
+          this.clip_tag_tmp=''
+          break
+        }
+      }
+    },
+    deletechip: function () {
+      // TODO
+      window.alert("还没写，别急")
     },
     finit: function () {
       if (!this.init) {
@@ -159,6 +189,7 @@ export default {
       }
     },
     addbreakpoint: function () {
+      this.finit()
       if ("currentTime" in this.player.cache_) {
         let time = this.player.cache_.currentTime
         time = Number(time.toFixed(1))
@@ -180,8 +211,11 @@ export default {
       } else {
         this.$bus.$emit('snackbar', ['You should play the video before this.', 'info'])
       }
-      console.log(this.clips)
+      //console.log(this.clips)
     },
+    submit: function () {
+
+    }
   },
   beforeRouteLeave(to, from, next) {
     if (!this.saved) {

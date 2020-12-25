@@ -7,6 +7,8 @@ from peewee import fn
 from .db import VIDEO
 from .model import setInfo
 
+from functools import lru_cache
+
 
 def getinfo():
     if VIDEO.select().where(VIDEO.tagstatus == 0).count() == 0:
@@ -33,7 +35,19 @@ def setinfo(info: setInfo, tagstatus: bool):
         record.save()
         return [9, "保存成功"]
 
+
+@lru_cache()
 def gettags():
-    with open('tag.json','r') as f:
+    with open('tag.json', 'r',encoding='UTF-8') as f:
         tags = json.loads(f.read())
-    return tags
+    all_tags = []
+    for btype in tags.keys():
+        print(btype)
+        for stype in tags[btype].keys():
+            if not tags[btype][stype]:
+                all_tags.append(btype + '-' + stype)
+            else:
+                for ttag in tags[btype][stype]:
+                    all_tags.append(btype + '-' + stype + '-' + ttag)
+
+    return all_tags

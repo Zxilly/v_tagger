@@ -1,6 +1,4 @@
-from func.init import init
-from func import video
+from func.video import *
 
-init()
 
-print(video.getinfo())
+print(gettags())
