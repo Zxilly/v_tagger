@@ -110,12 +110,12 @@ export default {
               'username': this.user
             }
           }
-      ).then((resp)=>{
+      ).then((resp) => {
         let data = resp.data
-        if (data[0]===6){
+        if (data[0] === 6) {
           this.showSnackbar([data[1], 'error'])
         } else {
-          localStorage.setItem("exist",1)
+          localStorage.setItem("exist", 1)
           localStorage.setItem("user", this.user)
           localStorage.setItem("session", data[2])
           this.session = data[2]
@@ -142,7 +142,7 @@ export default {
         let data = resp.data
         if (data[0] === 0) {
           this.showSnackbar([data[1], 'success'])
-          localStorage.setItem("exist",1)
+          localStorage.setItem("exist", 1)
           localStorage.setItem("user", this.user)
           localStorage.setItem("session", data[2])
           this.session = data[2]
@@ -192,6 +192,7 @@ export default {
       localStorage.removeItem('session')
       localStorage.removeItem('user')
       localStorage.removeItem('exist')
+      this.logined = false
       this.$router.push("/")
     },
     getInfo: function () {
@@ -204,12 +205,13 @@ export default {
           // console.log(this.video)
           resolve()
         }).catch((resp) => {
-          let status = resp.status
+          let status = resp.response.status
+          console.log(status)
           if (status === 503) {
-            this.showSnackbar(['No more video to tag', 'error'])
+            this.showSnackbar(['No more video to tag', 'info'])
             reject()
           } else {
-            this.showSnackbar(['Unknown error, please contact developer.'], 'error')
+            this.showSnackbar(['Unknown error, please contact developer.', 'error'])
           }
         })
       })

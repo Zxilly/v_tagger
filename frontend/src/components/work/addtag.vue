@@ -1,20 +1,31 @@
 <template>
-  <v-row>
-    <v-col cols="8">
-      <video-player class="video-player-box"
-                    ref="videoPlayer"
-                    :options="playerOptions"
+  <v-row justify="center">
+    <v-col
+        cols="8"
+        class="d-flex"
+    >
+      <v-card
+          style="display:block"
+          class="mx-auto"
       >
-      </video-player>
+        <video-player
+            class="video-player-box ma-2"
+            ref="videoPlayer"
+            :options="playerOptions"
+        />
+      </v-card>
     </v-col>
     <v-col cols="4">
-
+      <v-card>
+        <v-card-title>Tag List</v-card-title>
+      </v-card>
     </v-col>
   </v-row>
 </template>
 
 <script>
 import {apiurl} from "@/config";
+
 
 export default {
   name: "addtag",
@@ -28,14 +39,21 @@ export default {
     player() {
       return this.$refs.videoPlayer.player
     },
-    playerOptions:function (){
+    vh2pxheight: function () {
+      return window.innerHeight*0.7
+    },
+    playerOptions: function () {
       return {
         // videojs options
         muted: false,
+        //width: "100%",
+        height: this.vh2pxheight,
         playbackRates: [0.7, 1.0, 1.5, 2.0],
+        language: 'zh-cmn-Hans',
+        fluid: false,
         sources: [{
           type: "video/mp4",
-          src: apiurl+'/video/data/'+this.$route.params.hash+'.mp4'
+          src: apiurl + '/video/data/' + this.$route.params.hash + '.mp4'
         }],
       }
     }
