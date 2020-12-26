@@ -195,7 +195,7 @@ export default {
       localStorage.removeItem('exist')
       this.logined = false
       if (this.$route.path !== '/') {
-        this.$router.push("/")
+        this.$router.push("/user/login")
       }
     },
     getHash: function () {
