@@ -69,7 +69,7 @@ export default {
         this.$bus.$emit('login', [this.sn_value, authcode])
       }
     },
-    jump:  function () {
+    jump: function () {
       this.$router.push('/user/reg')
     }
   }

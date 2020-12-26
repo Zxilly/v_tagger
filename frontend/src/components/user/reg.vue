@@ -49,19 +49,19 @@
 export default {
   name: "reg",
   data: () => ({
-    valid:true,
-    sn_value:'',
-    password:'',
-    password2:'',
-    rules:{
-      required:value => !!value || 'Required.',
-      length:value => value.length===10 || 'Student number should be 10 characters.',
+    valid: true,
+    sn_value: '',
+    password: '',
+    password2: '',
+    rules: {
+      required: value => !!value || 'Required.',
+      length: value => value.length === 10 || 'Student number should be 10 characters.',
     }
   }),
-  methods:{
-    reg:function () {
-      if(this.$refs.form.validate()){
-        if (this.password===this.password2){
+  methods: {
+    reg: function () {
+      if (this.$refs.form.validate()) {
+        if (this.password === this.password2) {
           let authcode = this.$md5(this.password2)
           this.$bus.$emit('reg', [this.sn_value, authcode])
         }

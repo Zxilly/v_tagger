@@ -28,32 +28,32 @@ Vue.prototype.$authedAxios = null
 
 
 const router = new VueRouter({
-  routes: [
-    {
-      path:'/',
-      component: welcome
-    },
-    {
-      path:'/user/reg',
-      component: reg
-    },
-    {
-      path:'/user/login',
-      component: login
-    },
-    {
-      path:'/work/addtag/:hash',
-      component: addtag
-    },
-    {
-      path:'*',
-      component: notfound
-    }
-  ]
+    routes: [
+        {
+            path: '/',
+            component: welcome
+        },
+        {
+            path: '/user/reg',
+            component: reg
+        },
+        {
+            path: '/user/login',
+            component: login
+        },
+        {
+            path: '/work/addtag/:hash',
+            component: addtag
+        },
+        {
+            path: '*',
+            component: notfound
+        }
+    ]
 })
 
 new Vue({
-  vuetify,
-  router,
-  render: h => h(App)
+    vuetify,
+    router,
+    render: h => h(App)
 }).$mount('#app')

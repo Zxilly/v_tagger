@@ -34,8 +34,8 @@ export default {
     title: String,
     loginstatus: Boolean,
   },
-  methods:{
-    logout:function () {
+  methods: {
+    logout: function () {
       this.$bus.$emit("logout")
     }
   }
