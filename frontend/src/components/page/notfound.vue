@@ -1,5 +1,5 @@
 <template>
-<div></div>
+  <h1 class="mt-12 mx-auto text-center">ROUTE NOT FOUND</h1>
 </template>
 
 <script>

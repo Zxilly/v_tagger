@@ -48,7 +48,7 @@ def searchpath(path: str):
                 continue
             info = {
                 "length": round(float(video_length), 1),
-                "clip": [],
+                "clips": [],
             }
             shutil.copyfile(item.absolute(), '../data/' + fileMD5 + '.mp4')
             VIDEO.create(hash=fileMD5, info=json.dumps(info), tagstatus=False)

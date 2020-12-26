@@ -10,27 +10,34 @@ from .model import setInfo
 from functools import lru_cache
 
 
-def getinfo():
+def getinfo(hashv):
+    record = VIDEO.select().where(VIDEO.hash == hashv)
+    if record.count() == 0:
+        raise HTTPException(status_code=404, detail="Can not find the corresponding video.")
+    return_value = {
+        'hash': record[0].hash,
+        'info': json.loads(record[0].info)
+    }
+    return [8, "获取成功", return_value]
+
+
+def gethash():
     if VIDEO.select().where(VIDEO.tagstatus == 0).count() == 0:
         raise HTTPException(status_code=503, detail="No more video to tag.")
     rand_record = VIDEO.select().where(VIDEO.tagstatus == 0).order_by(fn.Rand()).limit(1)[0]
-    return_value = {
-        'hash': rand_record.hash,
-        'info': json.loads(rand_record.info)
-    }
-    return [8, "获取成功", return_value]
+    return [10, "获取成功", rand_record.hash]
 
 
 def setinfo(info: setInfo, tagstatus: bool):
     record = VIDEO.get_or_none(VIDEO.hash == info.hash)
     if not record:
-        raise HTTPException(status_code=500, detail="Can not find the video to tag.")
+        raise HTTPException(status_code=404, detail="Can not find the corresponding video to tag.")
     else:
-        repinfo = {
+        reqinfo = {
             "length": info.length,
-            "clip": info.clip
+            "clips": info.clips
         }
-        record.info = jsonable_encoder(repinfo)
+        record.info = json.dumps(jsonable_encoder(reqinfo))
         record.tagstatus = tagstatus
         record.save()
         return [9, "保存成功"]
@@ -38,11 +45,11 @@ def setinfo(info: setInfo, tagstatus: bool):
 
 @lru_cache()
 def gettags():
-    with open('tag.json', 'r',encoding='UTF-8') as f:
+    with open('tag.json', 'r', encoding='UTF-8') as f:
         tags = json.loads(f.read())
     all_tags = []
     for btype in tags.keys():
-        print(btype)
+        # print(btype)
         for stype in tags[btype].keys():
             if not tags[btype][stype]:
                 all_tags.append(btype + '-' + stype)

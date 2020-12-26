@@ -39,20 +39,19 @@ export default {
   name: 'App',
   components: {Cheader},
   created() {
-    if (this.$route.path !== '/') {
-      this.$router.push('/')
-    }
     if (this.checkLocalUserStatus()) {
       this.auth()
     } else {
-      this.$router.push('/user/login')
+      if (this.$route.path!=='/user/login'){
+        this.$router.push('/user/login')
+      }
     }
   },
   mounted() {
     this.$bus.$on('login', this.loginevent)
     this.$bus.$on('reg', this.regevent)
     this.$bus.$on('logout', this.logout)
-    this.$bus.$on('submit', this.setInfo)
+    this.$bus.$on('gotag', this.getJob)
     this.$bus.$on('snackbar', this.showSnackbar)
   },
   data: () => ({
@@ -62,7 +61,7 @@ export default {
     // waiting: true,
     logined: false,
     // loginAttempt: false,
-    authedAxios: null,
+    // authedAxios: null,
     snackbarBool: false,
     snackbarMessage: '',
     snackbarColor: '',
@@ -71,7 +70,7 @@ export default {
       '/user/reg': 'Register',
       '/user/login': 'Login',
     },
-    video: null
+    hash: ''
   }),
   computed: {
     titleword: function () {
@@ -171,7 +170,7 @@ export default {
           this.logined = true
           // session有效,跳转到 /work/tag
           this.showSnackbar([data[1], 'success'])
-          this.authedAxios = this.$axios.create({
+          this.$bus.$authedAxios = this.$axios.create({
             baseURL: apiurl,
             params: {
               'username': this.user
@@ -180,10 +179,7 @@ export default {
               'session': this.session
             }
           })
-          this.getInfo().then(() => {
-            this.$router.push('/work/addtag/' + this.video.hash)
-          }).catch(() => {
-          })
+          this.$bus.$emit('authready')
         } else {
           this.$router.push('/user/login')
           //session 无效，跳转到 /user/login
@@ -197,18 +193,13 @@ export default {
       this.logined = false
       this.$router.push("/")
     },
-    getInfo: function () {
-      return new Promise((resolve, reject) => {
-        this.authedAxios.get('/video/getinfo').then((resp) => {
-          let data = resp.data
-          // console.log(data)
-          this.showSnackbar([data[1], 'success'])
-          this.video = data[2]
-          // console.log(this.video)
+    getHash: function () {
+      return new Promise(((resolve, reject) => {
+        this.$bus.$authedAxios.get('/video/gethash').then((resp) => {
+          this.hash = resp.data[2]
           resolve()
         }).catch((resp) => {
           let status = resp.response.status
-          console.log(status)
           if (status === 503) {
             this.showSnackbar(['No more video to tag', 'info'])
             reject()
@@ -216,10 +207,13 @@ export default {
             this.showSnackbar(['Unknown error, please contact developer.', 'error'])
           }
         })
-      })
+      }))
     },
-    setInfo:function (args) {
-      
+    getJob:function () {
+      this.getHash().then(() => {
+        this.$router.push('/work/addtag/' + this.hash)
+      }).catch(() => {
+      })
     }
   }
 };

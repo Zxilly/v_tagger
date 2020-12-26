@@ -57,12 +57,24 @@ async def user_auth(username: str = Query(...),
     return user.auth(username, session)
 
 
+@app.get('/video/gethash')
+async def video_getinfo(
+        username: str = Query(...),
+        session: str = Header(...)
+):
+    if utils.auth(username, session)[0] == 4:
+        return video.gethash()
+    else:
+        raise HTTPException(status_code=403, detail="Fobidden")
+
+
 @app.get('/video/getinfo')
 async def video_getinfo(username: str = Query(...),
-                        session: str = Header(...)
+                        hashv: str = Query(...),
+                        session: str = Header(...),
                         ):
     if utils.auth(username, session)[0] == 4:
-        return video.getinfo()
+        return video.getinfo(hashv)
     else:
         raise HTTPException(status_code=403, detail="Fobidden")
 

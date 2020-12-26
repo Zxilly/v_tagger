@@ -11,7 +11,6 @@
             class="video-player-box ma-2"
             ref="videoPlayer"
             :options="playerOptions"
-            @canplay="finit"
         />
       </v-card>
     </v-col>
@@ -64,6 +63,17 @@
           </div>
         </v-card-text>
       </v-card>
+      <v-card class="mt-6 pa-4">
+        <v-btn
+            class="mx-auto"
+            style="display: block"
+            text
+            x-large
+            @click.stop="submit"
+        >
+          Submit
+        </v-btn>
+      </v-card>
     </v-col>
     <v-dialog
         v-model="dialog"
@@ -94,7 +104,7 @@
               text
               @click="dialog = false"
           >
-            Cancal
+            Cancel
           </v-btn>
           <v-btn
               color="green darken-1"
@@ -102,6 +112,32 @@
               @click="savechip"
           >
             Save
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+        v-model="dialog2"
+        persistent
+        max-width="300px"
+    >
+      <v-card>
+        <v-card-title class="mb-4">
+          You have submit the clips.
+        </v-card-title>
+        <v-card-actions>
+          <v-btn
+              text
+              @click="exit"
+          >
+            Exit
+          </v-btn>
+          <v-spacer/>
+          <v-btn
+              text
+              @click="gotag"
+          >
+            Tag another video
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -120,9 +156,11 @@ export default {
     clips: [],
     init: false,
     dialog: false,
+    dialog2:false,
     clip_start_tmp: Number,
     clip_tag_tmp: String,
     tags: null,
+    length: '',
   }),
   mounted() {
     this.$axios.get(apiurl + '/video/gettags').then((resp) => {
@@ -160,36 +198,56 @@ export default {
     },
   },
   methods: {
+    getInfo: function () {
+      this.$bus.$authedAxios.get('/video/getinfo', {
+        params: {
+          'hashv': this.hash
+        }
+      }).then((resp) => {
+        let data = resp.data
+        this.length = data[2]['info']['length']
+        this.clips = data[2]['info']['clips']
+        console.log(this.clips)
+        if (this.clips.length!==0) {
+          this.clips.sort((a, b) => {
+            return a.start - b.start
+          })
+        } else {
+          this.finit()
+        }
+      })
+    },
     updatechip: function (start) {
       this.dialog = true
       this.clip_start_tmp = start
     },
     savechip: function () {
       for (let clip of this.clips) {
-        if (clip.start===this.clip_start_tmp){
-          clip.tag=this.clip_tag_tmp
-          this.dialog=false
-          this.clip_tag_tmp=''
+        if (clip.start === this.clip_start_tmp) {
+          clip.tag = this.clip_tag_tmp
+          clip.tagger = localStorage.getItem('user')
+          this.dialog = false
+          this.clip_tag_tmp = ''
           break
         }
       }
     },
     deletechip: function () {
-      // TODO
+      // TODO:implement
       window.alert("还没写，别急")
     },
     finit: function () {
-      if (!this.init) {
+      if (!this.init || this.clips!==[]) {
         this.clips.push({
           start: 0,
-          end: this.duartion,
-          tag: ''
+          end: this.length,
+          tag: '',
+          tagger:''
         })
         this.init = true
       }
     },
     addbreakpoint: function () {
-      this.finit()
       if ("currentTime" in this.player.cache_) {
         let time = this.player.cache_.currentTime
         time = Number(time.toFixed(1))
@@ -198,15 +256,19 @@ export default {
             this.clips.push({
               start: time,
               end: clip.end,
-              tag: ''
+              tag: '',
+              tagger: localStorage.getItem('user')
             })
             clip.end = time
             clip.tag = ''
+            clip.tagger = localStorage.getItem('user')
             this.clips.sort((a, b) => {
               return a.start - b.start
             })
+
             break
           }
+          console.log(this.clips)
         }
       } else {
         this.$bus.$emit('snackbar', ['You should play the video before this.', 'info'])
@@ -214,8 +276,38 @@ export default {
       //console.log(this.clips)
     },
     submit: function () {
-
+      for (let clip of this.clips) {
+        if (clip.tag === '') {
+          this.$bus.$emit('snackbar', ['Exist untagged clip.', 'error'])
+          return
+        }
+      }
+      this.$bus.$authedAxios.post('/video/setinfo',{
+        'info':{
+          'hash':this.hash,
+          'length':this.duartion,
+          'clips':this.clips
+        },
+        'tagstatus':1
+      }).then((resp)=>{
+        let data = resp.data
+        if (data[0]===9){
+          this.saved=true
+          this.dialog2=true
+        }
+      })
+    },
+    gotag : function () {
+      this.$bus.$emit('gotag')
+    },
+    exit:function () {
+      this.$router.push('/')
     }
+  },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      vm.$bus.$on('authready',vm.getInfo)
+    })
   },
   beforeRouteLeave(to, from, next) {
     if (!this.saved) {
@@ -226,6 +318,8 @@ export default {
       } else {
         next(false)
       }
+    } else {
+      this.player.dispose()
     }
   }
 }

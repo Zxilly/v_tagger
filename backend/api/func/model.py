@@ -7,10 +7,10 @@ class clip(BaseModel):
     start: float
     end: float
     tag: str
-    tagger: List[str]
+    tagger: str
 
 
 class setInfo(BaseModel):
     hash: str
     length: float
-    clip: List[clip]
+    clips: List[clip]

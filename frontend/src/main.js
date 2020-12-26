@@ -24,6 +24,7 @@ Vue.config.productionTip = false
 Vue.prototype.$axios = axios;
 Vue.prototype.$md5 = md5
 Vue.prototype.$bus = new Vue()
+Vue.prototype.$authedAxios = null
 
 
 const router = new VueRouter({
