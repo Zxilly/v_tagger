@@ -156,7 +156,7 @@ export default {
     clips: [],
     init: false,
     dialog: false,
-    dialog2:false,
+    dialog2: false,
     clip_start_tmp: Number,
     clip_tag_tmp: String,
     tags: null,
@@ -208,12 +208,17 @@ export default {
         this.length = data[2]['info']['length']
         this.clips = data[2]['info']['clips']
         console.log(this.clips)
-        if (this.clips.length!==0) {
+        if (this.clips.length !== 0) {
           this.clips.sort((a, b) => {
             return a.start - b.start
           })
         } else {
           this.finit()
+        }
+      }).catch((resp) => {
+        let status = resp.response.status
+        if (status === 404) {
+          this.$bus.$emit('snackbar', ['Internal Error.', 'error'])
         }
       })
     },
@@ -237,12 +242,12 @@ export default {
       window.alert("还没写，别急")
     },
     finit: function () {
-      if (!this.init || this.clips!==[]) {
+      if (!this.init || this.clips !== []) {
         this.clips.push({
           start: 0,
           end: this.length,
           tag: '',
-          tagger:''
+          tagger: ''
         })
         this.init = true
       }
@@ -265,7 +270,6 @@ export default {
             this.clips.sort((a, b) => {
               return a.start - b.start
             })
-
             break
           }
           console.log(this.clips)
@@ -282,31 +286,36 @@ export default {
           return
         }
       }
-      this.$bus.$authedAxios.post('/video/setinfo',{
-        'info':{
-          'hash':this.hash,
-          'length':this.duartion,
-          'clips':this.clips
+      this.$bus.$authedAxios.post('/video/setinfo', {
+        'info': {
+          'hash': this.hash,
+          'length': this.duartion,
+          'clips': this.clips
         },
-        'tagstatus':1
-      }).then((resp)=>{
+        'tagstatus': 1
+      }).then((resp) => {
         let data = resp.data
-        if (data[0]===9){
-          this.saved=true
-          this.dialog2=true
+        if (data[0] === 9) {
+          this.saved = true
+          this.dialog2 = true
+        }
+      }).catch((resp) => {
+        let status = resp.response.status
+        if (status === 404) {
+          this.$bus.$emit('snackbar', ['Internal Error.', 'error'])
         }
       })
     },
-    gotag : function () {
+    gotag: function () {
       this.$bus.$emit('gotag')
     },
-    exit:function () {
+    exit: function () {
       this.$router.push('/')
     }
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
-      vm.$bus.$on('authready',vm.getInfo)
+      vm.$bus.$on('authready', vm.getInfo)
     })
   },
   beforeRouteLeave(to, from, next) {
