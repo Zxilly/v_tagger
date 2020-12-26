@@ -197,6 +197,7 @@ export default {
       if (this.$route.path !== '/') {
         this.$router.push("/user/login")
       }
+      location.reload();
     },
     getHash: function () {
       return new Promise(((resolve, reject) => {

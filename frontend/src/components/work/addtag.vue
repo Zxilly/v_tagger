@@ -322,13 +322,13 @@ export default {
     if (!this.saved) {
       const answer = window.confirm('Do you really want to leave? You have unsaved changes!')
       if (answer) {
-        this.player.dispose()
+        //this.player.dispose()
         next()
       } else {
         next(false)
       }
     } else {
-      this.player.dispose()
+      //this.player.dispose()
     }
   }
 }
