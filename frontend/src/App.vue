@@ -180,6 +180,9 @@ export default {
             }
           })
           this.$bus.$emit('authready')
+          if (this.$route.path!=='/'){
+            this.$router.push('/')
+          } // 跳转逻辑是合理的
         } else {
           this.$router.push('/user/login')
           //session 无效，跳转到 /user/login
