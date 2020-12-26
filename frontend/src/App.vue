@@ -42,7 +42,7 @@ export default {
     if (this.checkLocalUserStatus()) {
       this.auth()
     } else {
-      if (this.$route.path!=='/user/login'){
+      if (this.$route.path !== '/user/login') {
         this.$router.push('/user/login')
       }
     }
@@ -180,7 +180,7 @@ export default {
             }
           })
           this.$bus.$emit('authready')
-          if (this.$route.path!=='/'){
+          if (this.$route.path !== '/') {
             this.$router.push('/')
           } // 跳转逻辑是合理的
         } else {
@@ -194,7 +194,9 @@ export default {
       localStorage.removeItem('user')
       localStorage.removeItem('exist')
       this.logined = false
-      this.$router.push("/")
+      if (this.$route.path !== '/') {
+        this.$router.push("/")
+      }
     },
     getHash: function () {
       return new Promise(((resolve, reject) => {
@@ -212,7 +214,7 @@ export default {
         })
       }))
     },
-    getJob:function () {
+    getJob: function () {
       this.getHash().then(() => {
         this.$router.push('/work/addtag/' + this.hash)
       }).catch(() => {
