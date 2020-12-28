@@ -302,7 +302,7 @@ export default {
           return
         }
       }
-      console.log(this.clips)
+      // console.log(this.clips)
       this.$bus.$authedAxios.post('/video/setinfo', {
         'info': {
           'hash': this.hash,
@@ -329,7 +329,7 @@ export default {
       this.$bus.$emit('gotag')
     },
     exit: function () {
-      console.log("exit")
+      // console.log("exit")
       this.dialog2 = false
       this.$router.push('/')
     }
