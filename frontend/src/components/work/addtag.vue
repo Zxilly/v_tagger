@@ -293,7 +293,6 @@ export default {
       } else {
         this.$bus.$emit('snackbar', ['You should play the video before this.', 'info'])
       }
-      //console.log(this.clips)
     },
     submit: function () {
       for (let clip of this.clips) {
