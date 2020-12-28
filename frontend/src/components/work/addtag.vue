@@ -86,9 +86,16 @@
         </v-card-title>
         <v-card-text>
           <v-autocomplete
+              label="Video Tag"
               :items="tags"
               v-model="clip_tag_tmp"
           />
+          <v-textarea
+              label="Video Description"
+              hint="A short sentence to describe the video."
+              rows="2"
+              v-model="clip_tag_sentence_tmp"
+          ></v-textarea>
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -123,7 +130,7 @@
     >
       <v-card>
         <v-card-title class="mb-4">
-          You have submit the clips.
+          You have submitted the clips.
         </v-card-title>
         <v-card-actions>
           <v-btn
@@ -158,7 +165,8 @@ export default {
     dialog: false,
     dialog2: false,
     clip_start_tmp: Number,
-    clip_tag_tmp: String,
+    clip_tag_tmp: '',
+    clip_tag_sentence_tmp: '',
     tags: null,
     length: '',
   }),
@@ -207,7 +215,7 @@ export default {
         let data = resp.data
         this.length = data[2]['info']['length']
         this.clips = data[2]['info']['clips']
-        console.log(this.clips)
+        // console.log(this.clips)
         if (this.clips.length !== 0) {
           this.clips.sort((a, b) => {
             return a.start - b.start
@@ -231,8 +239,10 @@ export default {
         if (clip.start === this.clip_start_tmp) {
           clip.tag = this.clip_tag_tmp
           clip.tagger = localStorage.getItem('user')
+          clip.tagsentence = this.clip_tag_sentence_tmp
           this.dialog = false
           this.clip_tag_tmp = ''
+          this.clip_tag_sentence_tmp = ''
           break
         }
       }
@@ -242,11 +252,12 @@ export default {
       window.alert("还没写，别急")
     },
     finit: function () {
-      if (!this.init || this.clips !== []) {
+      if ((!this.init) || this.clips === []) {
         this.clips.push({
           start: 0,
           end: this.length,
           tag: '',
+          tagsentence: '',
           tagger: ''
         })
         this.init = true
@@ -262,17 +273,19 @@ export default {
               start: time,
               end: clip.end,
               tag: '',
+              tagsentence: '',
               tagger: localStorage.getItem('user')
             })
             clip.end = time
             clip.tag = ''
+            clip.tagsentence = ''
             clip.tagger = localStorage.getItem('user')
             this.clips.sort((a, b) => {
               return a.start - b.start
             })
             break
           }
-          console.log(this.clips)
+          // console.log(this.clips)
         }
       } else {
         this.$bus.$emit('snackbar', ['You should play the video before this.', 'info'])
@@ -298,6 +311,8 @@ export default {
         if (data[0] === 9) {
           this.saved = true
           this.dialog2 = true
+        } else {
+          this.$bus.$emit('snackbar', ['Internal Error.', 'error'])
         }
       }).catch((resp) => {
         let status = resp.response.status
@@ -315,20 +330,22 @@ export default {
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
-      vm.$bus.$on('authready', vm.getInfo)
+      // console.log(vm.$bus.authed)
+      if (vm.$bus.authed) {
+        vm.getInfo()
+      } else {
+        vm.$bus.$on('authready', vm.getInfo)
+      }
     })
   },
   beforeRouteLeave(to, from, next) {
-    if (!this.saved) {
+    if (!this.saved && this.init) {
       const answer = window.confirm('Do you really want to leave? You have unsaved changes!')
       if (answer) {
-        //this.player.dispose()
         next()
       } else {
         next(false)
       }
-    } else {
-      //this.player.dispose()
     }
   }
 }

@@ -26,6 +26,8 @@ Vue.prototype.$md5 = md5
 Vue.prototype.$bus = new Vue()
 Vue.prototype.$authedAxios = null
 
+Vue.prototype.$bus.authed = false
+
 
 const router = new VueRouter({
     routes: [

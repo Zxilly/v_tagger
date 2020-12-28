@@ -179,6 +179,9 @@ export default {
               'session': this.session
             }
           })
+          this.$bus.authed = true
+          // console.log("set authed as")
+          // console.log(this.$bus.authed)
           this.$bus.$emit('authready')
           if (this.$route.path !== '/') {
             this.$router.push('/')
