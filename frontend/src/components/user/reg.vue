@@ -32,6 +32,11 @@
                 v-model="password2"
                 :rules="[rules.required]"
             ></v-text-field>
+            <v-text-field
+                label="授权码"
+                v-model="regcode"
+                :rules="[rules.required]"
+            ></v-text-field>
           </v-form>
           <v-btn
               @click="reg"
@@ -53,6 +58,7 @@ export default {
     sn_value: '',
     password: '',
     password2: '',
+    regcode: '',
     rules: {
       required: value => !!value || 'Required.',
       length: value => value.length === 10 || 'Student number should be 10 characters.',
@@ -63,7 +69,7 @@ export default {
       if (this.$refs.form.validate()) {
         if (this.password === this.password2) {
           let authcode = this.$md5(this.password2)
-          this.$bus.$emit('reg', [this.sn_value, authcode])
+          this.$bus.$emit('reg', [this.sn_value, authcode,this.regcode])
         }
       }
     }

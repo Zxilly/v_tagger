@@ -60,6 +60,7 @@ export default {
     session: "",
     // waiting: true,
     logined: false,
+    regcode: "",
     // loginAttempt: false,
     // authedAxios: null,
     snackbarBool: false,
@@ -96,16 +97,18 @@ export default {
         return false
       }
     },
-    regevent: function ([sn_value, authcode]) {
+    regevent: function ([sn_value, authcode, regcode]) {
       this.user = sn_value
       this.authCode = authcode
+      this.regcode = regcode
       this.reg()
     },
     reg: function () {
       this.$axios.post(
           apiurl + "/user/reg",
           {
-            "authcode": this.authCode
+            "authcode": this.authCode,
+            'regcode': this.regcode,
           }, {
             params: {
               'username': this.user
@@ -122,6 +125,11 @@ export default {
           this.session = data[2]
           this.auth()
         }
+      }).catch((resp)=>{
+        let status=resp.response.status
+        if (status===403){
+          this.showSnackbar(['RegCode Error', 'error'])
+        }
       })
     },
     loginevent: function ([sn_value, authcode]) {
@@ -133,7 +141,7 @@ export default {
       this.$axios.post(
           apiurl + "/user/login",
           {
-            "authcode": this.authCode
+            "authcode": this.authCode,
           }, {
             params: {
               'username': this.user
@@ -197,7 +205,7 @@ export default {
       localStorage.removeItem('user')
       localStorage.removeItem('exist')
       this.logined = false
-      if (this.$route.path !== '/') {
+      if (this.$route.path !== '/user/login') {
         this.$router.push("/user/login")
       }
       location.reload();

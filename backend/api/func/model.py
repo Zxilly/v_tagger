@@ -8,6 +8,7 @@ class clip(BaseModel):
     end: float
     tag: str
     tagger: str
+    tagsentence: str
 
 
 class setInfo(BaseModel):

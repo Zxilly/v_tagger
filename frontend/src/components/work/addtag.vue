@@ -88,12 +88,14 @@
           <v-autocomplete
               label="Video Tag"
               :items="tags"
+              :rules="rule"
               v-model="clip_tag_tmp"
           />
           <v-textarea
               label="Video Description"
               hint="A short sentence to describe the video."
               rows="2"
+              :rules="rule"
               v-model="clip_tag_sentence_tmp"
           ></v-textarea>
         </v-card-text>
@@ -161,6 +163,7 @@ export default {
   data: () => ({
     saved: false,
     clips: [],
+    rule: [value => !!value || 'Required.'],
     init: false,
     dialog: false,
     dialog2: false,
@@ -294,11 +297,12 @@ export default {
     },
     submit: function () {
       for (let clip of this.clips) {
-        if (clip.tag === '') {
-          this.$bus.$emit('snackbar', ['Exist untagged clip.', 'error'])
+        if (clip.tag === '' || clip.tagsentence === '') {
+          this.$bus.$emit('snackbar', ['Exist untagged or empty sentence clip.', 'error'])
           return
         }
       }
+      console.log(this.clips)
       this.$bus.$authedAxios.post('/video/setinfo', {
         'info': {
           'hash': this.hash,
@@ -325,6 +329,8 @@ export default {
       this.$bus.$emit('gotag')
     },
     exit: function () {
+      console.log("exit")
+      this.dialog2 = false
       this.$router.push('/')
     }
   },
@@ -346,6 +352,8 @@ export default {
       } else {
         next(false)
       }
+    } else {
+      next()
     }
   }
 }

@@ -1,4 +1,6 @@
 import json
+import random
+import string
 
 from .db import db, USER, VIDEO
 
@@ -27,7 +29,8 @@ def init(quiet=True):
                 'sqlport': sqlport,
                 'sqluser': sqluser,
                 'sqlpassword': sqlpassword,
-                'sqldbname': sqldbname
+                'sqldbname': sqldbname,
+                'regcode': ''.join(random.sample(string.ascii_letters + string.digits, 8))
             }
             with open("config.json", 'w+') as f:
                 f.write(json.dumps(config))

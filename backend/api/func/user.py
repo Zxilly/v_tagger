@@ -1,6 +1,8 @@
 import json
 import uuid
 
+from fastapi import HTTPException
+
 from .db import *
 from .utils import auth as auth2
 from .utils import getSession, timenow
@@ -24,8 +26,11 @@ def auth(username: str, session: str):
     return auth2(username, session)
 
 
-def reg(username: str, authcode: str):
+def reg(username: str, authcode: str, regcode: str):
     session = getSession()
+    with open('config.json', 'r') as f:
+        if regcode != json.loads(f.read())['regcode']:
+            raise HTTPException(status_code=403, detail="Wrong RegCode")
     if not USER.get_or_none(USER.studentID == username):
         USER.create(studentID=username,
                     ID=uuid.uuid4(),

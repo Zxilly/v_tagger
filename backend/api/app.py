@@ -38,9 +38,10 @@ async def root():
 
 @app.post('/user/reg')
 async def user_reg(username: str = Query(...),
-                   authcode: str = Body(..., embed=True)
+                   authcode: str = Body(..., embed=True),
+                   regcode: str = Body(..., embed=True)
                    ):
-    return user.reg(username, authcode)
+    return user.reg(username, authcode, regcode)
 
 
 @app.post("/user/login")
