@@ -50,7 +50,8 @@ def searchpath(path: str):
                 "length": round(float(video_length), 1),
                 "clips": [],
             }
-            shutil.copyfile(item.absolute(), '../data/' + fileMD5 + '.mp4')
+            item.rename(str(item.parents[0])+'/'+fileMD5+'.mp4')
+            # shutil.copyfile(item.absolute(), '../data/' + fileMD5 + '.mp4')
             VIDEO.create(hash=fileMD5, info=json.dumps(info), tagstatus=False)
             handle_count += 1
     print("Handle %d files and ignore %d files" % (handle_count, ignore_count))

@@ -128,7 +128,7 @@
     <v-dialog
         v-model="dialog2"
         persistent
-        max-width="300px"
+        max-width="400px"
     >
       <v-card>
         <v-card-title class="mb-4">

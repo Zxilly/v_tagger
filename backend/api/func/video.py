@@ -48,14 +48,14 @@ def setinfo(info: setInfo, tagstatus: bool):
 def gettags():
     with open('tag.json', 'r', encoding='UTF-8') as f:
         tags = json.loads(f.read())
-    all_tags = []
-    for btype in tags.keys():
-        # print(btype)
-        for stype in tags[btype].keys():
-            if not tags[btype][stype]:
-                all_tags.append(btype + '-' + stype)
-            else:
-                for ttag in tags[btype][stype]:
-                    all_tags.append(btype + '-' + stype + '-' + ttag)
+    # all_tags = []
+    # for btype in tags.keys():
+    #     # print(btype)
+    #     for stype in tags[btype].keys():
+    #         if not tags[btype][stype]:
+    #             all_tags.append(btype + '-' + stype)
+    #         else:
+    #             for ttag in tags[btype][stype]:
+    #                 all_tags.append(btype + '-' + stype + '-' + ttag)
 
-    return all_tags
+    return tags
