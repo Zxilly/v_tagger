@@ -1,5 +1,36 @@
 <template>
-  <v-row justify="center">
+  <v-row
+      justify="center"
+      v-if="!fileinit"
+      class="mt-12"
+  >
+    <v-col
+        cols="8"
+        class="d-flex justify-center pa-6"
+    >
+      <v-card
+          width="50%"
+      >
+        <v-card-title>
+          请选择视频文件
+        </v-card-title>
+        <v-card-text>
+          <v-file-input
+              :label="'MD5: '+hash"
+              accept="video/mp4"
+              outlined
+              ref="file"
+              :rules="rules2"
+          ></v-file-input>
+        </v-card-text>
+
+      </v-card>
+    </v-col>
+  </v-row>
+  <v-row
+      justify="center"
+      v-else
+  >
     <v-col
         cols="8"
     >
@@ -88,14 +119,14 @@
           <v-autocomplete
               label="Video Tag"
               :items="tags"
-              :rules="rule"
+              :rules="rules1"
               v-model="clip_tag_tmp"
           />
           <v-textarea
               label="Video Description"
               hint="A short sentence to describe the video."
               rows="2"
-              :rules="rule"
+              :rules="rules1"
               v-model="clip_tag_sentence_tmp"
           ></v-textarea>
         </v-card-text>
@@ -156,14 +187,34 @@
 
 <script>
 import {apiurl} from "@/config";
-
+import md5c from 'js-md5'
 
 export default {
   name: "addtag",
   data: () => ({
     saved: false,
     clips: [],
-    rule: [value => !!value || 'Required.'],
+    conjunctions: [],
+    rules1: [value => !!value || 'Required.'],
+    rules2: [function (value) {
+      if (value === undefined) {
+        return 'Please select a file.'
+      }
+
+      let fileReader = new FileReader()
+      let blobSlice = File.prototype.slice
+      fileReader.readAsArrayBuffer(blobSlice.call(value, 0, 200 * 1024))
+      fileReader.onload = function (e) {
+        let md5 = md5c(e.target.result)
+        if (md5.toString()===this.hash){
+          return true
+        } else {
+          console.log(md5)
+          return 'Please select correct video.'
+        }
+      }
+    }],
+    fileinit: false,
     init: false,
     dialog: false,
     dialog2: false,
