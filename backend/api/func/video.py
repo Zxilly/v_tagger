@@ -35,7 +35,8 @@ def setinfo(info: setInfo, tagstatus: bool):
     else:
         reqinfo = {
             "length": info.length,
-            "clips": info.clips
+            "clips": info.clips,
+            "conjunctions": info.conjunctions
         }
         # print(info.clips)
         record.info = json.dumps(jsonable_encoder(reqinfo))

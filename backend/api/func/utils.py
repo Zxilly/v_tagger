@@ -49,6 +49,7 @@ def searchpath(path: str):
             info = {
                 "length": round(float(video_length), 1),
                 "clips": [],
+                "conjunctions": []
             }
             item.resolve()
             item.rename(str(item.parents[0])+'/'+fileMD5+'.mp4')

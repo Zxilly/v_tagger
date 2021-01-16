@@ -15,3 +15,4 @@ class setInfo(BaseModel):
     hash: str
     length: float
     clips: List[clip]
+    conjunctions: List[str]
