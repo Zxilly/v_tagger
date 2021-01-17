@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/video/data", StaticFiles(directory="../data/"), name="static")
+# app.mount("/video/data", StaticFiles(directory="../data/"), name="static")
 
 
 # Just for test, uvicorn not support range request. Will use nginx to serve the files in the release.

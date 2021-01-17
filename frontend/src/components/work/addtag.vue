@@ -1,7 +1,7 @@
 <template>
   <v-row
       justify="center"
-      v-if="!fileinit"
+      v-if="!fileinited"
       class="mt-12"
   >
     <v-col
@@ -20,6 +20,7 @@
               accept="video/mp4"
               outlined
               ref="file"
+              @change="videohash"
               :rules="rules2"
           ></v-file-input>
         </v-card-text>
@@ -73,6 +74,9 @@
                 <th class="text-left">
                   Tag
                 </th>
+                <th class="text-left">
+                  Sentence
+                </th>
               </tr>
               </thead>
               <tbody>
@@ -84,6 +88,7 @@
                 <td>{{ clip.start }}</td>
                 <td>{{ clip.end }}</td>
                 <td>{{ clip.tag }}</td>
+                <td>{{ clip.tagsentence ? "√" : "×" }}</td>
               </tr>
               </tbody>
             </template>
@@ -196,25 +201,8 @@ export default {
     clips: [],
     conjunctions: [],
     rules1: [value => !!value || 'Required.'],
-    rules2: [function (value) {
-      if (value === undefined) {
-        return 'Please select a file.'
-      }
-
-      let fileReader = new FileReader()
-      let blobSlice = File.prototype.slice
-      fileReader.readAsArrayBuffer(blobSlice.call(value, 0, 200 * 1024))
-      fileReader.onload = function (e) {
-        let md5 = md5c(e.target.result)
-        if (md5.toString()===this.hash){
-          return true
-        } else {
-          console.log(md5)
-          return 'Please select correct video.'
-        }
-      }
-    }],
-    fileinit: false,
+    filetip: true,
+    fileinited: false,
     init: false,
     dialog: false,
     dialog2: false,
@@ -223,6 +211,7 @@ export default {
     clip_tag_sentence_tmp: '',
     tags: null,
     length: '',
+    videodata: undefined
   }),
   mounted() {
     this.$axios.get(apiurl + '/video/gettags').then((resp) => {
@@ -254,12 +243,37 @@ export default {
         aspectRatio: '16:9',
         sources: [{
           type: "video/mp4",
-          src: apiurl + '/video/data/' + this.$route.params.hash + '.mp4'
+          src: this.videodata
         }],
       }
     },
+    rules2: function () {
+      // console.log(this)
+      return [this.filetip]
+    },
   },
   methods: {
+    videohash: function (value) {
+      // console.log(value)
+      if (value === undefined) {
+        this.filetip = 'Please select a file.'
+      }
+
+      let fileReader = new FileReader()
+      let blobSlice = File.prototype.slice
+      fileReader.readAsArrayBuffer(blobSlice.call(value, 0, 200 * 1024))
+      fileReader.onload = (e) => {
+        let md5 = md5c(e.target.result)
+        if (md5.toString() === this.hash) {
+          this.filetip = true
+          this.fileinited = true
+          this.videodata = window.URL.createObjectURL(value)
+        } else {
+          console.log(md5)
+          this.filetip = 'Please select correct video.'
+        }
+      }
+    },
     getInfo: function () {
       this.$bus.$authedAxios.get('/video/getinfo', {
         params: {
@@ -269,6 +283,7 @@ export default {
         let data = resp.data
         this.length = data[2]['info']['length']
         this.clips = data[2]['info']['clips']
+        this.conjunctions = data[2]['info']['conjunctions']
         // console.log(this.clips)
         if (this.clips.length !== 0) {
           this.clips.sort((a, b) => {
