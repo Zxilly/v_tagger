@@ -61,7 +61,7 @@
       <v-card>
         <v-card-title>Clip List</v-card-title>
         <v-card-text>
-          <v-simple-table>
+<!--          <v-simple-table>
             <template v-slot:default>
               <thead>
               <tr>
@@ -92,7 +92,8 @@
               </tr>
               </tbody>
             </template>
-          </v-simple-table>
+          </v-simple-table>-->
+
           <div
               class="mt-2"
           >Click the clip to add or change the tag.
@@ -338,6 +339,10 @@ export default {
         time = Number(time.toFixed(1))
         for (let clip of this.clips) {
           if (time > clip.start && time <= clip.end) {
+            if (time === clip.end) {
+              this.$bus.$emit('snackbar', ['This breakpoint has been added.', 'error'])
+              break
+            }
             this.clips.push({
               start: time,
               end: clip.end,
