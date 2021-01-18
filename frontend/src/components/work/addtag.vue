@@ -61,39 +61,47 @@
       <v-card>
         <v-card-title>Clip List</v-card-title>
         <v-card-text>
-<!--          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-              <tr>
-                <th class="text-left">
-                  Start
-                </th>
-                <th class="text-left">
-                  End
-                </th>
-                <th class="text-left">
-                  Tag
-                </th>
-                <th class="text-left">
-                  Sentence
-                </th>
-              </tr>
-              </thead>
+          <v-data-table
+              :headers="tablecfg.headers"
+              :items="clips"
+              :items-per-page="5"
+          >
+            <template
+                v-slot:body="{ items }"
+            >
               <tbody>
-              <tr
-                  v-for="clip in clips"
-                  :key="clip.start"
-                  @click.stop="updatechip(clip.start)"
-              >
-                <td>{{ clip.start }}</td>
-                <td>{{ clip.end }}</td>
-                <td>{{ clip.tag }}</td>
-                <td>{{ clip.tagsentence ? "√" : "×" }}</td>
-              </tr>
+              <template v-for="(item,i) in items">
+                <tr
+                    :key="i+200"
+                    v-if="i!==0"
+                    @click.stop="updatechip(2,item.start,item.end,item.tag,item.tagsentence,item.start===0?'':item.conjunction)"
+                >
+                  <td
+                      colspan="2"
+                      style="text-align: center"
+                  >
+                    Conjunction:
+                  </td>
+                  <td
+                      colspan="2"
+                      style="text-align: center"
+                  >
+                    {{ item.conjunction }}
+                  </td>
+                </tr>
+                <tr
+                    :key="i"
+                    @click.stop="updatechip(0,item.start,item.end,item.tag,item.tagsentence,'')"
+                >
+                  <td>{{ item.start }}</td>
+                  <td>{{ item.end }}</td>
+                  <td>{{ item.tag }}</td>
+                  <td>{{ item.tagsentence ? "√" : "×" }}</td>
+                </tr>
+              </template>
               </tbody>
             </template>
-          </v-simple-table>-->
-
+          </v-data-table>
           <div
               class="mt-2"
           >Click the clip to add or change the tag.
@@ -113,7 +121,7 @@
       </v-card>
     </v-col>
     <v-dialog
-        v-model="dialog"
+        v-model="dialog0"
         persistent
         max-width="600px"
     >
@@ -137,23 +145,15 @@
           ></v-textarea>
         </v-card-text>
         <v-card-actions>
-          <v-btn
-              color="red darken-1"
-              text
-              @click="deletechip"
-          >
-            Delete Chip
-          </v-btn>
           <v-spacer></v-spacer>
           <v-btn
-              color="red darken-1"
               text
-              @click="dialog = false"
+              @click="dialog0 = false"
           >
             Cancel
           </v-btn>
           <v-btn
-              color="green darken-1"
+              color="blue darken-1"
               text
               @click="savechip"
           >
@@ -163,7 +163,7 @@
       </v-card>
     </v-dialog>
     <v-dialog
-        v-model="dialog2"
+        v-model="dialog1"
         persistent
         max-width="400px"
     >
@@ -181,9 +181,44 @@
           <v-spacer/>
           <v-btn
               text
+              class="blue darken-1"
               @click="gotag"
           >
             Tag another video
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+        v-model="dialog2"
+        persistent
+        max-width="600px"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="headline">Add Conjunction</span>
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+              label="Conjunction"
+              hint="A word to connect the sentence."
+              v-model="clip_conjunction_tmp"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+              text
+              @click="dialog2 = false"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="saveconjunction"
+          >
+            Save
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -205,14 +240,30 @@ export default {
     filetip: true,
     fileinited: false,
     init: false,
-    dialog: false,
+    dialog0: false,
+    dialog1: false,
     dialog2: false,
     clip_start_tmp: Number,
+    clip_end_tmp: Number,
     clip_tag_tmp: '',
     clip_tag_sentence_tmp: '',
+    clip_conjunction_tmp: '',
     tags: null,
     length: '',
-    videodata: undefined
+    videodata: undefined,
+    tablecfg: {
+      headers: [
+        {
+          text: 'Start',
+          align: 'start',
+          sortable: false,
+          value: 'start',
+        },
+        {text: 'End', value: 'end', sortable: false},
+        {text: 'Tag', value: 'tag', sortable: false},
+        {text: 'Sentence', value: 'tagsentence', sortable: false},
+      ],
+    }
   }),
   mounted() {
     this.$axios.get(apiurl + '/video/gettags').then((resp) => {
@@ -224,7 +275,7 @@ export default {
       return this.$route.params.hash
     },
     duartion: function () {
-      return Number(this.player.cache_.duration.toFixed(1))
+      return Number(this.player["cache_"].duration.toFixed(1))
     },
     player() {
       return this.$refs.videoPlayer.player
@@ -259,12 +310,11 @@ export default {
       if (value === undefined) {
         this.filetip = 'Please select a file.'
       }
-
       let fileReader = new FileReader()
       let blobSlice = File.prototype.slice
       fileReader.readAsArrayBuffer(blobSlice.call(value, 0, 200 * 1024))
       fileReader.onload = (e) => {
-        let md5 = md5c(e.target.result)
+        let md5 = md5c.hex(e.target.result)
         if (md5.toString() === this.hash) {
           this.filetip = true
           this.fileinited = true
@@ -300,9 +350,22 @@ export default {
         }
       })
     },
-    updatechip: function (start) {
-      this.dialog = true
+    updatechip: function (dialogid, start, end, tag, tagsentence, conjunction) {
       this.clip_start_tmp = start
+      this.clip_end_tmp = end
+      this.clip_tag_tmp = tag
+      this.clip_tag_sentence_tmp = tagsentence
+      if (start !== 0) {
+        this.clip_conjunction_tmp = conjunction
+      }
+      if (dialogid === 0) {
+        this.dialog0 = true
+      }
+
+      if (dialogid === 2) {
+        this.dialog2 = true
+      }
+
     },
     savechip: function () {
       for (let clip of this.clips) {
@@ -310,7 +373,7 @@ export default {
           clip.tag = this.clip_tag_tmp
           clip.tagger = localStorage.getItem('user')
           clip.tagsentence = this.clip_tag_sentence_tmp
-          this.dialog = false
+          this.dialog0 = false
           this.clip_tag_tmp = ''
           this.clip_tag_sentence_tmp = ''
           break
@@ -320,6 +383,15 @@ export default {
     deletechip: function () {
       // TODO:implement
       window.alert("还没写，别急")
+    },
+    saveconjunction: function () {
+      for (let clip of this.clips) {
+        if (clip.start === this.clip_start_tmp) {
+          clip.conjunction = this.clip_conjunction_tmp
+          this.dialog2 = false
+          break
+        }
+      }
     },
     finit: function () {
       if ((!this.init) || this.clips === []) {
@@ -348,12 +420,16 @@ export default {
               end: clip.end,
               tag: '',
               tagsentence: '',
-              tagger: localStorage.getItem('user')
+              tagger: localStorage.getItem('user'),
+              conjunction: ''
             })
             clip.end = time
             clip.tag = ''
             clip.tagsentence = ''
             clip.tagger = localStorage.getItem('user')
+            if (clip.start !== 0) {
+              clip.conjunction = ''
+            }
             this.clips.sort((a, b) => {
               return a.start - b.start
             })
@@ -372,19 +448,30 @@ export default {
           return
         }
       }
+      if (!this.conjunctions){
+        this.conjunctions = []
+      }
+      for (let i = 1; i < this.clips.length; i++) {
+        if (this.clips[i].conjunction === '') {
+          this.$bus.$emit('snackbar', ['Exist empty conjunction.', 'error'])
+          return
+        }
+        this.conjunctions[i - 1] = this.clips[i].conjunction
+      }
       // console.log(this.clips)
       this.$bus.$authedAxios.post('/video/setinfo', {
         'info': {
           'hash': this.hash,
           'length': this.duartion,
-          'clips': this.clips
+          'clips': this.clips,
+          'conjunctions': this.conjunctions
         },
         'tagstatus': 1
       }).then((resp) => {
         let data = resp.data
         if (data[0] === 9) {
           this.saved = true
-          this.dialog2 = true
+          this.dialog1 = true
         } else {
           this.$bus.$emit('snackbar', ['Internal Error.', 'error'])
         }
@@ -396,17 +483,18 @@ export default {
       })
     },
     gotag: function () {
+      this.dialog1 = false
+      this.fileinited = false
       this.$bus.$emit('gotag')
     },
     exit: function () {
       // console.log("exit")
-      this.dialog2 = false
+      this.dialog1 = false
       this.$router.push('/')
     }
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
-      // console.log(vm.$bus.authed)
       if (vm.$bus.authed) {
         vm.getInfo()
       } else {
