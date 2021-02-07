@@ -43,6 +43,7 @@ jobs:
           automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
           prerelease: true
           title: "Development Build"
-          files: frontend.tar.gz
+          files: |
+            ./frontend.tar.gz
         
         
