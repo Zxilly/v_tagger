@@ -28,12 +28,12 @@ jobs:
         run: yarn run build --modern
       
       - name: Pack files
-        run: tar zcf frontend.tar.gz -C dist/ .
+        run: tar zcvf ./frontend.tar.gz -C ./dist .
        
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
+          automatic_release_tag: "${{ github.sha }}"
           prerelease: true
           title: "Development Build"
           files: frontend.tar.gz
