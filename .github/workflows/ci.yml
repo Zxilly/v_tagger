@@ -1,0 +1,41 @@
+
+name: AutoBuild
+ 
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    defaults:
+     run:
+      shell: bash
+      working-directory: frontend
+    
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+         node-version: '^14'
+      
+      - name: Install JS Dep
+        run: pwd && yarn install
+        
+      - name: Build
+        run: yarn run build --modern
+      
+      - name: Pack files
+        run: tar zcf frontend.tar.gz -C dist/ .
+       
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: frontend.tar.gz
+        
+        
