@@ -1,7 +1,8 @@
+from typing import List
+
 import uvicorn
 from fastapi import FastAPI, Body, Query, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
 from func import user, init, db, video, utils, model
 
@@ -14,6 +15,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # app.mount("/video/data", StaticFiles(directory="../data/"), name="static")
 
@@ -56,6 +58,18 @@ async def user_auth(username: str = Query(...),
                     session: str = Header(...)
                     ):
     return user.auth(username, session)
+
+
+@app.post('/video/add')
+async def video_add(
+        username: str = Query(...),
+        session: str = Header(...),
+        videos: List[model.video] = Body(..., embed=True)
+):
+    if utils.auth(username, session)[0] == 4:
+        return video.add(videos)
+    else:
+        raise HTTPException(status_code=403, detail="Fobidden")
 
 
 @app.get('/video/gethash')

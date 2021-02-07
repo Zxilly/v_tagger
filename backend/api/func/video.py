@@ -1,4 +1,5 @@
 import json
+from functools import lru_cache
 
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -7,7 +8,27 @@ from peewee import fn
 from .db import VIDEO
 from .model import setInfo
 
-from functools import lru_cache
+
+def add(videos):
+    all = len(videos)
+    success = 0
+    failed = 0
+    for one in videos:
+        record = VIDEO.select().where(VIDEO.hash == one.hash)
+        if record.count() == 0:
+            info = {
+                "length": one.length,
+                "clips": [],
+                "conjunctions": []
+            }
+            VIDEO.create(hash=one.hash, info=json.dumps(info), tagstatus=False)
+            success += 1
+        else:
+            failed += 1
+            continue
+    if success + failed != all:
+        raise HTTPException(status_code=503, detail="WTF happened.")
+    return [11, f"上传成功{success}个，忽略{failed}个"]
 
 
 def getinfo(hashv):

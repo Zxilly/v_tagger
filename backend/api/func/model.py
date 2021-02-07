@@ -16,3 +16,8 @@ class setInfo(BaseModel):
     length: float
     clips: List[clip]
     conjunctions: List[str]
+
+
+class video(BaseModel):
+    hash: str
+    length: float

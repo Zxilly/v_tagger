@@ -1,6 +1,5 @@
 import hashlib
 import json
-import shutil
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -52,7 +51,7 @@ def searchpath(path: str):
                 "conjunctions": []
             }
             item.resolve()
-            item.rename(str(item.parents[0])+'/'+fileMD5+'.mp4')
+            item.rename(str(item.parents[0]) + '/' + fileMD5 + '.mp4')
             # shutil.copyfile(item.absolute(), '../data/' + fileMD5 + '.mp4')
             VIDEO.create(hash=fileMD5, info=json.dumps(info), tagstatus=False)
             handle_count += 1
