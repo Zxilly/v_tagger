@@ -37,7 +37,7 @@ jobs:
 #      - name: Pack files
 #        run: tar zcvf ./frontend.tar.gz -C ./dist .
       - name: test
-        run: echo a > frontend.tar.gz
+        run: echo "a" > frontend.tar.gz
        
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
