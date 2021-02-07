@@ -181,7 +181,7 @@
           <v-spacer/>
           <v-btn
               text
-              class="blue darken-1"
+              color="blue darken-1"
               @click="gotag"
           >
             Tag another video

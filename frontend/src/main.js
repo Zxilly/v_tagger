@@ -9,6 +9,7 @@ import login from '@/components/user/login'
 import addtag from "@/components/work/addtag";
 import notfound from "@/components/page/notfound";
 import welcome from "@/components/page/welcome";
+import add from "@/components/user/add";
 
 import axios from 'axios'
 import md5 from 'js-md5'
@@ -42,6 +43,10 @@ const router = new VueRouter({
         {
             path: '/user/login',
             component: login
+        },
+        {
+            path: '/user/add',
+            component: add
         },
         {
             path: '/work/addtag/:hash',

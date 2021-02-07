@@ -52,6 +52,7 @@ export default {
     this.$bus.$on('reg', this.regevent)
     this.$bus.$on('logout', this.logout)
     this.$bus.$on('gotag', this.getJob)
+    this.$bus.$on('goadd', this.addVideo)
     this.$bus.$on('snackbar', this.showSnackbar)
   },
   data: () => ({
@@ -70,6 +71,7 @@ export default {
       '/': 'Welcome',
       '/user/reg': 'Register',
       '/user/login': 'Login',
+      '/user/add': 'Add Video',
     },
     hash: ''
   }),
@@ -125,9 +127,9 @@ export default {
           this.session = data[2]
           this.auth()
         }
-      }).catch((resp)=>{
-        let status=resp.response.status
-        if (status===403){
+      }).catch((resp) => {
+        let status = resp.response.status
+        if (status === 403) {
           this.showSnackbar(['RegCode Error', 'error'])
         }
       })
@@ -230,7 +232,13 @@ export default {
       this.getHash().then(() => {
         this.$router.push('/work/addtag/' + this.hash)
       }).catch(() => {
+        if (this.$route.path !== '/') {
+          this.$router.push('/')
+        }
       })
+    },
+    addVideo: function () {
+      this.$router.push('/user/add')
     }
   }
 };

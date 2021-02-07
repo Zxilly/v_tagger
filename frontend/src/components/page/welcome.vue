@@ -10,6 +10,14 @@
       >
         Go Tagging
       </v-btn>
+      <v-btn
+          class="mx-auto mt-4"
+          text
+          style="display:block"
+          @click="goadd"
+      >
+        Add videos
+      </v-btn>
     </div>
   </div>
 </template>
@@ -20,6 +28,9 @@ export default {
   methods: {
     gotag: function () {
       this.$bus.$emit('gotag')
+    },
+    goadd: function () {
+      this.$bus.$emit('goadd')
     }
   }
 }
