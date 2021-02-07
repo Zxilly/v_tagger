@@ -27,13 +27,13 @@ jobs:
       - uses: actions/setup-node@v2
         with:
          node-version: '^14'
-      
+
       - name: Install JS Dep
         run: pwd && yarn install
-        
+
       - name: Build
         run: yarn run build --modern
-      
+
       - name: Pack files
         run: tar zcvf ./frontend.tar.gz -C ./dist .
        
@@ -42,7 +42,7 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
           prerelease: true
-          title: "Development Build"
-          files: frontend.tar.gz
+          files: |
+            frontend/frontend.tar.gz
         
         
