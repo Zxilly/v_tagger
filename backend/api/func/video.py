@@ -15,7 +15,7 @@ def add(videos):
     failed = 0
     for one in videos:
         record = VIDEO.select().where(VIDEO.hash == one.hash)
-        if record.count() == 0:
+        if not VIDEO.get_or_none(VIDEO.hash == one.hash):
             info = {
                 "length": one.length,
                 "clips": [],
