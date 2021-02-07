@@ -16,6 +16,13 @@ jobs:
       working-directory: frontend
     
     steps:
+      - name: Get current time
+        uses: 1466587594/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYYMMDD-HH
+          utcOffset: "+08:00"
+
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
@@ -33,7 +40,7 @@ jobs:
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ date '+%Y%m%d%H%M%S' }}"
+          automatic_release_tag: "${{ steps.current-time.outputs.time }}"
           prerelease: true
           title: "Development Build"
           files: frontend.tar.gz
