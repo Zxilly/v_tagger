@@ -53,7 +53,9 @@ export default {
     this.$bus.$on('logout', this.logout)
     this.$bus.$on('gotag', this.getJob)
     this.$bus.$on('goadd', this.addVideo)
+    this.$bus.$on('gosentence', this.getMarkJob)
     this.$bus.$on('snackbar', this.showSnackbar)
+    this.$bus.$on('goany', this.goAnywhere)
   },
   data: () => ({
     user: "",
@@ -237,8 +239,29 @@ export default {
         }
       })
     },
+    getMarkJob: function () {
+      this.$bus.$authedAxios.get(apiurl + '/video/getsentencehash').then((resp) => {
+        return resp.data[2]
+      }).catch((err) => {
+        let status = err.response.status
+        if (status === 503) {
+          this.showSnackbar(['No more sentence to mark', 'info'])
+        }
+      }).then((hash) => {
+        if (hash !== undefined) {
+          this.$router.push('/work/marksentence/' + hash)
+        }
+      })
+    },
     addVideo: function () {
       this.$router.push('/user/add')
+    },
+    goAnywhere: function (path) {
+      if (this.$route.path !== path) {
+        this.$router.push(path)
+      } else {
+        console.log('duplicate lead to ' + path + ',please report this to developer.')
+      }
     }
   }
 };

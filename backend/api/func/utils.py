@@ -1,10 +1,13 @@
 import hashlib
 import json
 import uuid
+
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Callable
 
 import ffmpeg
+from fastapi import HTTPException
 
 from .db import USER, VIDEO, db
 from .init import init
@@ -53,9 +56,16 @@ def searchpath(path: str):
             item.resolve()
             item.rename(str(item.parents[0]) + '/' + fileMD5 + '.mp4')
             # shutil.copyfile(item.absolute(), '../data/' + fileMD5 + '.mp4')
-            VIDEO.create(hash=fileMD5, info=json.dumps(info), tagstatus=False)
+            VIDEO.create(hash=fileMD5, info=json.dumps(info), tagstatus=False, markstatus=False)
             handle_count += 1
     print("Handle %d files and ignore %d files" % (handle_count, ignore_count))
+
+
+def needAuth(username: str, session: str, func):
+    if auth(username, session)[0] == 4:
+        return func()
+    else:
+        raise HTTPException(status_code=403, detail="Fobidden")
 
 
 def getMD5(encryptstr: str):

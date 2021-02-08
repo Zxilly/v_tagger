@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 import uvicorn
-from fastapi import FastAPI, Body, Query, Header, HTTPException
+from fastapi import FastAPI, Body, Query, Header
 from fastapi.middleware.cors import CORSMiddleware
 
 from func import user, init, db, video, utils, model
@@ -66,10 +66,11 @@ async def video_add(
         session: str = Header(...),
         videos: List[model.video] = Body(..., embed=True)
 ):
-    if utils.auth(username, session)[0] == 4:
-        return video.add(videos)
-    else:
-        raise HTTPException(status_code=403, detail="Fobidden")
+    # if utils.auth(username, session)[0] == 4:
+    #     return video.add(videos)
+    # else:
+    #     raise HTTPException(status_code=403, detail="Fobidden")
+    return utils.needAuth(username, session, lambda: video.add(videos))
 
 
 @app.get('/video/gethash')
@@ -77,10 +78,11 @@ async def video_getinfo(
         username: str = Query(...),
         session: str = Header(...)
 ):
-    if utils.auth(username, session)[0] == 4:
-        return video.gethash()
-    else:
-        raise HTTPException(status_code=403, detail="Fobidden")
+    # if utils.auth(username, session)[0] == 4:
+    #     return video.gethash()
+    # else:
+    #     raise HTTPException(status_code=403, detail="Fobidden")
+    return utils.needAuth(username, session, lambda: video.gethash())
 
 
 @app.get('/video/getinfo')
@@ -88,22 +90,37 @@ async def video_getinfo(username: str = Query(...),
                         hashv: str = Query(...),
                         session: str = Header(...),
                         ):
-    if utils.auth(username, session)[0] == 4:
-        return video.getinfo(hashv)
-    else:
-        raise HTTPException(status_code=403, detail="Fobidden")
+    # if utils.auth(username, session)[0] == 4:
+    #     return video.getinfo(hashv)
+    # else:
+    #     raise HTTPException(status_code=403, detail="Fobidden")
+    return utils.needAuth(username, session, lambda: video.getinfo(hashv))
 
 
 @app.post('/video/setinfo')
 async def video_getinfo(username: str = Query(...),
                         session: str = Header(...),
                         info: model.setInfo = Body(...),
-                        tagstatus: bool = Body(False, embed=True)
+                        tagstatus: Optional[bool] = Body(False, embed=True),
+                        markstatus: Optional[bool] = Body(False, embed=True)
                         ):
-    if utils.auth(username, session):
-        return video.setinfo(info, tagstatus)
-    else:
-        raise HTTPException(status_code=403, detail="Fobidden")
+    # if utils.auth(username, session):
+    #     return video.setinfo(info, tagstatus, markstatus)
+    # else:
+    #     raise HTTPException(status_code=403, detail="Fobidden")
+    return utils.needAuth(username, session, lambda: video.setinfo(info, tagstatus, markstatus))
+
+
+@app.get('/video/getsentencehash')
+async def video_getsentencehash(
+        username: str = Query(...),
+        session: str = Header(...)
+):
+    # if utils.auth(username, session):
+    #     return video.getsentencehash()
+    # else:
+    #     raise HTTPException(status_code=403, detail="Fobidden")
+    return utils.needAuth(username, session, lambda: video.getsentencehash())
 
 
 @app.get('/video/gettags')

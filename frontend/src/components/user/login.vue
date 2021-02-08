@@ -31,17 +31,17 @@
           </v-form>
           <div>
             <v-btn
+                @click="jump"
+                text
+            >
+              Sign up
+            </v-btn>
+            <v-btn
+                class="float-right"
                 @click="login"
                 text
             >
               Log in
-            </v-btn>
-            <v-btn
-                @click="jump"
-                text
-                class="float-right"
-            >
-              Sign up
             </v-btn>
           </div>
         </v-card-text>

@@ -24,6 +24,13 @@
       </v-icon>
       Logout
     </v-btn>
+    <v-btn
+        v-if="this.$route.path === '/user/add'||this.$route.path.indexOf('/work/addtag/') !== -1"
+        text
+        @click="goback"
+    >
+      Go Back
+    </v-btn>
   </v-app-bar>
 </template>
 
@@ -37,6 +44,9 @@ export default {
   methods: {
     logout: function () {
       this.$bus.$emit("logout")
+    },
+    goback: function () {
+      this.$bus.$emit('goany', '/')
     }
   }
 }

@@ -21,7 +21,7 @@ def add(videos):
                 "clips": [],
                 "conjunctions": []
             }
-            VIDEO.create(hash=one.hash, info=json.dumps(info), tagstatus=False)
+            VIDEO.create(hash=one.hash, info=json.dumps(info), tagstatus=False, markstatus=False)
             success += 1
         else:
             failed += 1
@@ -49,7 +49,7 @@ def gethash():
     return [10, "获取成功", rand_record.hash]
 
 
-def setinfo(info: setInfo, tagstatus: bool):
+def setinfo(info: setInfo, tagstatus: bool, markstatus: bool):
     record = VIDEO.get_or_none(VIDEO.hash == info.hash)
     if not record:
         raise HTTPException(status_code=404, detail="Can not find the corresponding video to tag.")
@@ -62,8 +62,17 @@ def setinfo(info: setInfo, tagstatus: bool):
         # print(info.clips)
         record.info = json.dumps(jsonable_encoder(reqinfo))
         record.tagstatus = tagstatus
+        record.markstatus = markstatus
         record.save()
         return [9, "保存成功"]
+
+
+def getsentencehash():
+    if VIDEO.select().where(VIDEO.markstatus == 0 and VIDEO.tagstatus == 1).count() == 0:
+        raise HTTPException(status_code=503, detail="No more sentence to mark.")
+    rand_record = \
+        VIDEO.select().where(VIDEO.markstatus == 0 and VIDEO.tagstatus == 1).order_by(fn.Rand()).limit(1)[0]
+    return [10, "获取成功", rand_record.hash]
 
 
 @lru_cache()

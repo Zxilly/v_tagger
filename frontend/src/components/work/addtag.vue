@@ -466,7 +466,7 @@ export default {
           'clips': this.clips,
           'conjunctions': this.conjunctions
         },
-        'tagstatus': 1
+        'tagstatus': true
       }).then((resp) => {
         let data = resp.data
         if (data[0] === 9) {

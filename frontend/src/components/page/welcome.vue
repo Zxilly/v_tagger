@@ -14,6 +14,14 @@
           class="mx-auto mt-4"
           text
           style="display:block"
+          @click="goSentence"
+      >
+        Go Sentence Mark
+      </v-btn>
+      <v-btn
+          class="mx-auto mt-4"
+          text
+          style="display:block"
           @click="goadd"
       >
         Add videos
@@ -31,6 +39,9 @@ export default {
     },
     goadd: function () {
       this.$bus.$emit('goadd')
+    },
+    goSentence: function () {
+      this.$bus.$emit('gosentence')
     }
   }
 }
