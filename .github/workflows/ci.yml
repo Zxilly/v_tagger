@@ -37,12 +37,12 @@ jobs:
       - name: Pack files
         run: tar zcvf ./frontend.tar.gz -C ./dist .
        
-#      - uses: "marvinpinto/action-automatic-releases@latest"
-#        with:
-#          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-#          automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
-#          prerelease: true
-#          files: |
-#            frontend/frontend.tar.gz
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
+          prerelease: true
+          files: |
+            frontend/frontend.tar.gz
         
         
