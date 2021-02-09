@@ -38,7 +38,7 @@ jobs:
         run: |
           zip -rj frontend.zip dist/
           cd ..
-          zip -rj backend.zip dist/
+          zip -rj backend.zip backend/
        
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
