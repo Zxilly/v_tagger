@@ -36,9 +36,11 @@ jobs:
 
       - name: Pack files
         run: |
-          tar zcvf ./frontend.tar.gz -C ./dist .
+#          tar zcvf ./frontend.tar.gz -C ./dist .
+          zip -rj frontend.zip dist/
           cd ..
-          tar zcvf ./backend.tar.gz -C ./backend .
+#          tar zcvf ./backend.tar.gz -C ./backend .
+          zip -rj backend.zip dist/
        
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
