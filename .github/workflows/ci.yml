@@ -35,7 +35,10 @@ jobs:
         run: yarn run build --modern
 
       - name: Pack files
-        run: tar zcvf ./frontend.tar.gz -C ./dist .
+        run: |
+          tar zcvf ./frontend.tar.gz -C ./dist .
+          cd ..
+          tar zcvf ./backend.tar.gz -C ./backend .
        
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
@@ -44,5 +47,6 @@ jobs:
           prerelease: true
           files: |
             frontend/frontend.tar.gz
+            backend.tar.gz
         
         
