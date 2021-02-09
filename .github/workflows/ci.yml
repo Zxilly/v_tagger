@@ -36,9 +36,9 @@ jobs:
 
       - name: Pack files
         run: |
-          zip -rj frontend.zip dist/
+          zip -r frontend.zip dist/
           cd ..
-          zip -rj backend.zip backend/
+          zip -r backend.zip backend/
        
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
