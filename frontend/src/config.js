@@ -1,1 +1,1 @@
-export var apiurl = "http://localhost:23333"
+export var apiurl = "https://vt.api.learningman.top"

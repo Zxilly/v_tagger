@@ -79,10 +79,12 @@ export default {
   }),
   computed: {
     titleword: function () {
-      if (this.$route.path.indexOf('/work/addtag/') === -1) {
-        return this.title[this.$route.path]
-      } else {
+      if (this.$route.path.indexOf('/work/addtag/') !== -1) {
         return 'Tagging'
+      } else if (this.$route.path.indexOf('/work/marksentence/') !== -1) {
+        return 'Marking'
+      } else {
+        return this.title[this.$route.path]
       }
     }
   },

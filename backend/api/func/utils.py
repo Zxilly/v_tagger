@@ -65,7 +65,7 @@ def needAuth(username: str, session: str, func):
     if auth(username, session)[0] == 4:
         return func()
     else:
-        raise HTTPException(status_code=403, detail="Fobidden")
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 def getMD5(encryptstr: str):

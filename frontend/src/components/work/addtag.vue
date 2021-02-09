@@ -43,10 +43,15 @@
             class="video-player-box ma-2"
             ref="videoPlayer"
             :options="playerOptions"
+            @loadeddata="onPlayerLoadeddata"
+            @timeupdate="onTimeUpdate"
         />
       </v-card>
     </v-col>
-    <v-col cols="4">
+    <v-col
+        cols="4"
+        v-if="isAddtag"
+    >
       <v-card class="mb-6 pa-4">
         <v-btn
             class="mx-auto"
@@ -74,7 +79,7 @@
                 <tr
                     :key="i+200"
                     v-if="i!==0"
-                    @click.stop="updatechip(2,item.start,item.end,item.tag,item.tagsentence,item.start===0?'':item.conjunction)"
+                    @click.stop="updateclip(2,item.start,item.end,item.tag,item.tagsentence,item.start===0?'':item.conjunction)"
                 >
                   <td
                       colspan="2"
@@ -91,7 +96,7 @@
                 </tr>
                 <tr
                     :key="i"
-                    @click.stop="updatechip(0,item.start,item.end,item.tag,item.tagsentence,'')"
+                    @click.stop="updateclip(0,item.start,item.end,item.tag,item.tagsentence,'')"
                 >
                   <td>{{ item.start }}</td>
                   <td>{{ item.end }}</td>
@@ -106,6 +111,114 @@
               class="mt-2"
           >Click the clip to add or change the tag.
           </div>
+        </v-card-text>
+      </v-card>
+      <v-card class="mt-6 pa-4">
+        <v-btn
+            class="mx-auto"
+            style="display: block"
+            text
+            x-large
+            @click.stop="submit"
+        >
+          Submit
+        </v-btn>
+      </v-card>
+    </v-col>
+    <v-col
+        cols="4"
+        v-if="isMarkSentence"
+    >
+      <v-card
+          v-if="markdisplay"
+      >
+        <v-card-title>Sentence Mark</v-card-title>
+        <v-card-text>
+          <div
+              style="width: 100%"
+          >
+            <div>
+              <v-btn
+                  v-for="(item,i) in clips"
+                  :key="i"
+                  depressed
+                  tile
+                  :color="btnColor[i]"
+                  :width="1/clips.length*100+'%'"
+                  @click="goTime(item.start)"
+              >
+                {{ item.start.toFixed(1) }}-{{ item.end.toFixed(1) }}
+              </v-btn>
+            </div>
+          </div>
+          <v-simple-table>
+            <tbody>
+            <tr>
+              <td>Clip time:</td>
+              <td>
+                <span>{{ clips[switchCase].start.toFixed(1) }}</span>
+                <span>s</span>
+                <span> - </span>
+                <span>{{ clips[switchCase].end.toFixed(1) }}</span>
+                <span>s</span>
+              </td>
+            </tr>
+            <tr>
+              <td>Tag:</td>
+              <td>
+                {{ clips[switchCase].tag }}
+              </td>
+            </tr>
+            <tr>
+              <td>Sentence:</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                {{ clips[switchCase].tagsentence }}
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" class="text-center">Mark Sentence</td>
+            </tr>
+            <tr>
+              <td>Accuracy</td>
+              <td>
+                <v-rating
+                    v-model="clips[switchCase].mark.accuracy"
+                    @input="checkColor(clips[switchCase],switchCase)"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Conherent</td>
+              <td>
+                <v-rating
+                    v-model="clips[switchCase].mark.conherent"
+                    @input="checkColor(clips[switchCase],switchCase)"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Relevance</td>
+              <td>
+                <v-rating
+                    v-model="clips[switchCase].mark.relevance"
+                    @input="checkColor(clips[switchCase],switchCase)"
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Usability</td>
+              <td>
+                <v-rating
+                    v-model="clips[switchCase].mark.usability"
+                    @input="checkColor(clips[switchCase],switchCase)"
+                />
+              </td>
+            </tr>
+            </tbody>
+          </v-simple-table>
         </v-card-text>
       </v-card>
       <v-card class="mt-6 pa-4">
@@ -155,7 +268,7 @@
           <v-btn
               color="blue darken-1"
               text
-              @click="savechip"
+              @click="saveclip"
           >
             Save
           </v-btn>
@@ -180,11 +293,20 @@
           </v-btn>
           <v-spacer/>
           <v-btn
+              v-if="isAddtag"
               text
               color="blue darken-1"
               @click="gotag"
           >
             Tag another video
+          </v-btn>
+          <v-btn
+              v-if="isMarkSentence"
+              text
+              color="blue darken-1"
+              @click="gotag"
+          >
+            Mark another video
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -234,6 +356,7 @@ export default {
   name: "addtag",
   data: () => ({
     saved: false,
+    markdisplay: false,
     clips: [],
     conjunctions: [],
     rules1: [value => !!value || 'Required.'],
@@ -251,6 +374,9 @@ export default {
     tags: null,
     length: '',
     videodata: undefined,
+    playerel: undefined,
+    switchCase: 0,
+    btnColor: [],
     tablecfg: {
       headers: [
         {
@@ -275,7 +401,8 @@ export default {
       return this.$route.params.hash
     },
     duartion: function () {
-      return Number(this.player["cache_"].duration.toFixed(1))
+      //return Number(this.player["cache_"].duration.toFixed(1))
+      return Number(this.playerel.duration.toFixed(1))
     },
     player() {
       return this.$refs.videoPlayer.player
@@ -300,11 +427,22 @@ export default {
       }
     },
     rules2: function () {
-      // console.log(this)
       return [this.filetip]
     },
+    isAddtag: function () {
+      return this.$route.path.indexOf('/work/addtag/') !== -1
+    },
+    isMarkSentence: function () {
+      return this.$route.path.indexOf('/work/marksentence/') !== -1
+    }
   },
   methods: {
+    checkColor: function (item, i) {
+      if (item.mark.accuracy && item.mark.conherent && item.mark.relevance && item.mark.usability) {
+        //this.btnColor[i] = 'blue lighten-4'
+        this.$set(this.btnColor, i, 'blue lighten-4')
+      }
+    },
     videohash: function (value) {
       // console.log(value)
       if (value === undefined) {
@@ -343,6 +481,19 @@ export default {
         } else {
           this.finit()
         }
+
+        if (this.$route.path.indexOf('/work/marksentence/') !== -1) {
+          for (const clip of this.clips) {
+            clip['mark'] = {
+              'accuracy': 0,
+              'conherent': 0,
+              'relevance': 0,
+              'usability': 0
+            }
+          }
+          this.markdisplay = true
+        }
+
       }).catch((resp) => {
         let status = resp.response.status
         if (status === 404) {
@@ -350,7 +501,7 @@ export default {
         }
       })
     },
-    updatechip: function (dialogid, start, end, tag, tagsentence, conjunction) {
+    updateclip: function (dialogid, start, end, tag, tagsentence, conjunction) {
       this.clip_start_tmp = start
       this.clip_end_tmp = end
       this.clip_tag_tmp = tag
@@ -367,7 +518,7 @@ export default {
       }
 
     },
-    savechip: function () {
+    saveclip: function () {
       for (let clip of this.clips) {
         if (clip.start === this.clip_start_tmp) {
           clip.tag = this.clip_tag_tmp
@@ -380,7 +531,7 @@ export default {
         }
       }
     },
-    deletechip: function () {
+    deleteclip: function () {
       // TODO:implement
       window.alert("还没写，别急")
     },
@@ -394,6 +545,10 @@ export default {
       }
     },
     finit: function () {
+      if (!this.conjunctions) {
+        this.conjunctions = []
+      }
+
       if ((!this.init) || this.clips === []) {
         this.clips.push({
           start: 0,
@@ -442,23 +597,33 @@ export default {
       }
     },
     submit: function () {
-      for (let clip of this.clips) {
-        if (clip.tag === '' || clip.tagsentence === '') {
-          this.$bus.$emit('snackbar', ['Exist untagged or empty sentence clip.', 'error'])
-          return
+      if (this.isAddtag) {
+        for (let clip of this.clips) {
+          if (clip.tag === '' || clip.tagsentence === '') {
+            this.$bus.$emit('snackbar', ['Exist untagged or empty sentence clip.', 'error'])
+            return
+          }
         }
-      }
-      if (!this.conjunctions){
-        this.conjunctions = []
-      }
-      for (let i = 1; i < this.clips.length; i++) {
-        if (this.clips[i].conjunction === '') {
-          this.$bus.$emit('snackbar', ['Exist empty conjunction.', 'error'])
-          return
+        for (let i = 1; i < this.clips.length; i++) {
+          if (this.clips[i].conjunction === '' || this.clips[i].conjunction === undefined) {
+            this.$bus.$emit('snackbar', ['Exist empty conjunction.', 'error'])
+            return
+          }
+          this.conjunctions[i - 1] = this.clips[i].conjunction
         }
-        this.conjunctions[i - 1] = this.clips[i].conjunction
       }
       // console.log(this.clips)
+      let markstatus = false
+      if (this.isMarkSentence) {
+        for (const item of this.clips) {
+          if (!(item.mark.accuracy && item.mark.conherent && item.mark.relevance && item.mark.usability)) {
+            this.$bus.$emit('snackbar', ['Exist not mark sentence.', 'error'])
+            return
+          }
+        }
+        markstatus = true
+      }
+
       this.$bus.$authedAxios.post('/video/setinfo', {
         'info': {
           'hash': this.hash,
@@ -466,7 +631,8 @@ export default {
           'clips': this.clips,
           'conjunctions': this.conjunctions
         },
-        'tagstatus': true
+        'tagstatus': true,
+        'markstatus': markstatus
       }).then((resp) => {
         let data = resp.data
         if (data[0] === 9) {
@@ -482,10 +648,34 @@ export default {
         }
       })
     },
+    goTime: function (time) {
+      this.playerel.currentTime = time
+    },
+    onPlayerLoadeddata: function () {
+      this.playerel = document.getElementsByTagName('video')[0]
+    },
+    onTimeUpdate: function () {
+      if (this.clips === []) {
+        return
+      }
+      let a = this.playerel.currentTime
+      // console.log(a)
+      for (const [i, clip] of new Map(this.clips.map((item, i) => [i, item]))) {
+        if (a >= clip.start && a <= clip.end) {
+          this.switchCase = i
+          break
+        }
+      }
+    },
     gotag: function () {
       this.dialog1 = false
       this.fileinited = false
       this.$bus.$emit('gotag')
+    },
+    gomark: function () {
+      this.dialog1 = false
+      this.fileinited = false
+      this.$bus.$emit('goSentence')
     },
     exit: function () {
       // console.log("exit")
@@ -518,5 +708,7 @@ export default {
 </script>
 
 <style scoped>
-
+tr:hover {
+  background: #FFFFFF !important;
+}
 </style>

@@ -16,12 +16,12 @@ import md5 from 'js-md5'
 import VueVideoPlayer from 'vue-video-player'
 
 import 'video.js/dist/video-js.css'
-import marksentence from "@/components/work/marksentence";
 
 Vue.use(VueRouter)
 Vue.use(VueVideoPlayer)
 
 Vue.config.productionTip = false
+Vue.config.productionSourceMap = false
 
 Vue.prototype.$axios = axios;
 Vue.prototype.$md5 = md5
@@ -55,7 +55,7 @@ const router = new VueRouter({
         },
         {
             path: '/work/marksentence/:hash',
-            component: marksentence
+            component: addtag
         },
         {
             path: '*',
