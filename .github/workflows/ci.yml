@@ -46,7 +46,7 @@ jobs:
           automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
           prerelease: true
           files: |
-            frontend/frontend.tar.gz
-            backend.tar.gz
+            frontend/frontend.zip
+            backend.zip
         
         
