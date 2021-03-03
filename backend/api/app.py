@@ -1,8 +1,10 @@
+import time
 from typing import List, Optional
 
 import uvicorn
 from fastapi import FastAPI, Body, Query, Header
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.requests import Request
 
 from func import user, init, db, video, utils, model
 
@@ -17,10 +19,18 @@ app.add_middleware(
 )
 
 
-# app.mount("/video/data", StaticFiles(directory="../data/"), name="static")
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
 
+    if db.db.is_closed():
+        db.db.connect()
 
-# Just for test, uvicorn not support range request. Will use nginx to serve the files in the release.
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
 
 @app.on_event("startup")
 def startup():
