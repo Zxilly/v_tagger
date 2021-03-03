@@ -82,3 +82,8 @@ def getSession():
 
 def timenow():
     return datetime.now()
+
+
+def getRegCode():
+    with open('config.json', 'r') as f:
+        return json.loads(f.read())['regcode']

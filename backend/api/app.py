@@ -48,6 +48,14 @@ async def root():
     return "There is nothing here."
 
 
+@app.get("/regcode")
+async def regcode(
+        username: str = Query(...),
+        session: str = Header(...)
+):
+    return utils.needAuth(username, session, lambda: utils.getRegCode())
+
+
 @app.post('/user/reg')
 async def user_reg(username: str = Query(...),
                    authcode: str = Body(..., embed=True),
@@ -139,4 +147,4 @@ async def video_gettags():
 
 
 if __name__ == '__main__':
-    uvicorn.run('app:app', port=23333, debug=True)
+    uvicorn.run('app:app', port=14562, debug=False)
