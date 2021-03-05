@@ -1,6 +1,9 @@
 import json
 import random
 import string
+from contextvars import ContextVar
+
+import peewee
 
 from .db import db, USER, VIDEO
 
@@ -42,8 +45,26 @@ def init(quiet=True):
             sqladdress, sqlport, sqluser, sqlpassword, sqldbname = infocollect()
 
 
+db_state_default = {"closed": None, "conn": None, "ctx": None, "transactions": None}
+db_state = ContextVar("db_state", default=db_state_default.copy())
+
+
+class PeeweeConnectionState(peewee._ConnectionState):
+    def __init__(self, **kwargs):
+        super().__setattr__("_state", db_state)
+        super().__init__(**kwargs)
+
+    def __setattr__(self, name, value):
+        self._state.get()[name] = value
+
+    def __getattr__(self, name):
+        return self._state.get()[name]
+
+
 def check(sqldbname, sqluser, sqlpassword, sqladdress, sqlport):
     db.init(sqldbname, user=sqluser, password=sqlpassword, host=sqladdress, port=sqlport, charset='utf8mb4')
+
+    db._state = PeeweeConnectionState()
 
 
 def infocollect():

@@ -2,11 +2,12 @@ import time
 from typing import List, Optional
 
 import uvicorn
-from fastapi import FastAPI, Body, Query, Header
+from fastapi import FastAPI, Body, Query, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
 from func import user, init, db, video, utils, model
+from func.init import db_state_default
 
 app = FastAPI()
 
@@ -30,20 +31,31 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
 
-
-
     return response
 
 
-@app.on_event("startup")
-def startup():
-    init.init()
+# @app.on_event("startup")
+# def startup():
+#     db.db.connect()
+#
+#
+# @app.on_event("shutdown")
+# def shutdown():
+#     if not db.db.is_closed():
+#         db.db.close()
+
+async def reset_db_state():
+    db.db._state._state.set(db_state_default.copy())
+    db.db._state.reset()
 
 
-@app.on_event("shutdown")
-def shutdown():
-    if not db.db.is_closed():
-        db.db.close()
+def get_db(db_state=Depends(reset_db_state)):
+    try:
+        db.db.connect()
+        yield
+    finally:
+        if not db.db.is_closed():
+            db.db.close()
 
 
 @app.get("/")
@@ -59,7 +71,7 @@ async def regcode(
     return utils.needAuth(username, session, lambda: utils.getRegCode())
 
 
-@app.post('/user/reg')
+@app.post('/user/reg', dependencies=[Depends(get_db)])
 async def user_reg(username: str = Query(...),
                    authcode: str = Body(..., embed=True),
                    regcode: str = Body(..., embed=True)
@@ -67,21 +79,21 @@ async def user_reg(username: str = Query(...),
     return user.reg(username, authcode, regcode)
 
 
-@app.post("/user/login")
+@app.post("/user/login", dependencies=[Depends(get_db)])
 async def user_login(username: str = Query(...),
                      authcode: str = Body(..., embed=True)
                      ):
     return user.login(username, authcode)
 
 
-@app.post('/user/auth')
+@app.post('/user/auth', dependencies=[Depends(get_db)])
 async def user_auth(username: str = Query(...),
                     session: str = Header(...)
                     ):
     return user.auth(username, session)
 
 
-@app.post('/video/add')
+@app.post('/video/add', dependencies=[Depends(get_db)])
 async def video_add(
         username: str = Query(...),
         session: str = Header(...),
@@ -94,7 +106,7 @@ async def video_add(
     return utils.needAuth(username, session, lambda: video.add(videos))
 
 
-@app.get('/video/gethash')
+@app.get('/video/gethash', dependencies=[Depends(get_db)])
 async def video_getinfo(
         username: str = Query(...),
         session: str = Header(...)
@@ -106,7 +118,7 @@ async def video_getinfo(
     return utils.needAuth(username, session, lambda: video.gethash())
 
 
-@app.get('/video/getinfo')
+@app.get('/video/getinfo', dependencies=[Depends(get_db)])
 async def video_getinfo(username: str = Query(...),
                         hashv: str = Query(...),
                         session: str = Header(...),
@@ -118,7 +130,7 @@ async def video_getinfo(username: str = Query(...),
     return utils.needAuth(username, session, lambda: video.getinfo(hashv))
 
 
-@app.post('/video/setinfo')
+@app.post('/video/setinfo', dependencies=[Depends(get_db)])
 async def video_getinfo(username: str = Query(...),
                         session: str = Header(...),
                         info: model.setInfo = Body(...),
@@ -132,7 +144,7 @@ async def video_getinfo(username: str = Query(...),
     return utils.needAuth(username, session, lambda: video.setinfo(info, tagstatus, markstatus))
 
 
-@app.get('/video/getsentencehash')
+@app.get('/video/getsentencehash', dependencies=[Depends(get_db)])
 async def video_getsentencehash(
         username: str = Query(...),
         session: str = Header(...)
@@ -150,4 +162,5 @@ async def video_gettags():
 
 
 if __name__ == '__main__':
+    init.init(False)
     uvicorn.run('app:app', port=14562, debug=False)
