@@ -9,7 +9,7 @@
         class="d-flex justify-center pa-6"
     >
       <v-card
-          width="50%"
+          width="100%"
       >
         <v-card-title>
           请选择视频文件

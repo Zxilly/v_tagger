@@ -205,8 +205,8 @@ export default {
           //session 无效，跳转到 /user/login
         }
       }).catch(()=>{
-        if (this.$route.path !== '/') {
-          this.$router.push('/')
+        if (this.$route.path !== '/error') {
+          this.$router.push('/error')
         }
 
         this.showSnackbar(["Backend Service unavailable.", 'error'])

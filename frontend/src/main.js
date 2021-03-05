@@ -10,12 +10,14 @@ import addtag from "@/components/work/addtag";
 import notfound from "@/components/page/notfound";
 import welcome from "@/components/page/welcome";
 import add from "@/components/user/add";
+import error from "@/components/page/error";
 
 import axios from 'axios'
 import md5 from 'js-md5'
 import VueVideoPlayer from 'vue-video-player'
 
 import 'video.js/dist/video-js.css'
+
 
 Vue.use(VueRouter)
 Vue.use(VueVideoPlayer)
@@ -56,6 +58,10 @@ const router = new VueRouter({
         {
             path: '/work/marksentence/:hash',
             component: addtag
+        },
+        {
+            path: '/error',
+            component: error
         },
         {
             path: '*',
