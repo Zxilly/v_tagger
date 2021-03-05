@@ -204,6 +204,13 @@ export default {
           this.$router.push('/user/login')
           //session 无效，跳转到 /user/login
         }
+      }).catch(()=>{
+        if (this.$route.path !== '/') {
+          this.$router.push('/')
+        }
+
+        this.showSnackbar(["Backend Service unavailable.", 'error'])
+
       })
     },
     logout: function () {
