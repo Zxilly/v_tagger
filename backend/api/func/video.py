@@ -37,7 +37,8 @@ def getinfo(hashv):
         raise HTTPException(status_code=404, detail="Can not find the corresponding video.")
     return_value = {
         'hash': record[0].hash,
-        'info': json.loads(record[0].info)
+        'info': json.loads(record[0].info),
+        'tagstatus': record[0].tagstatus
     }
     return [8, "获取成功", return_value]
 

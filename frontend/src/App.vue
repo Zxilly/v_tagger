@@ -56,6 +56,7 @@ export default {
     this.$bus.$on('gosentence', this.getMarkJob)
     this.$bus.$on('snackbar', this.showSnackbar)
     this.$bus.$on('goany', this.goAnywhere)
+    this.$bus.$on('goreviewtag', this.goReviewTag)
   },
   data: () => ({
     user: "",
@@ -201,7 +202,9 @@ export default {
             this.$router.push('/')
           } // 跳转逻辑是合理的
         } else {
-          this.$router.push('/user/login')
+          if (this.$route.path !== '/user/login') {
+            this.$router.push('/user/login')
+          }
           //session 无效，跳转到 /user/login
         }
       }).catch(()=>{
@@ -271,6 +274,20 @@ export default {
       } else {
         console.log('duplicate lead to ' + path + ',please report this to developer.')
       }
+    },
+    goReviewTag: function (hash) {
+      this.$bus.$authedAxios.get('/video/getinfo', {
+        params: {
+          'hashv': hash
+        }
+      }).then(() => {
+        this.$router.push('/work/addtag/' + hash)
+      }).catch((resp) => {
+        let status = resp.response.status
+        if (status === 404) {
+          this.$bus.$emit('snackbar', ['Target hash not exist.', 'error'])
+        }
+      })
     }
   }
 };
