@@ -480,7 +480,7 @@ export default {
           })
 
           for (let i = 1; i < this.clips.length; i++) {
-            console.log(`set${i} to ${this.clips[i]}`)
+            // console.log(`set${i} to ${this.clips[i]}`)
             this.clips[i]['conjunction'] = this.conjunctions[i - 1]
           }
         } else {
