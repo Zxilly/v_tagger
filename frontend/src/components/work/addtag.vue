@@ -474,10 +474,15 @@ export default {
         this.clips = data[2]['info']['clips']
         this.conjunctions = data[2]['info']['conjunctions']
         // console.log(this.clips)
-        if (this.clips.length !== 0) {
+        if (this.clips.length > 0) {
           this.clips.sort((a, b) => {
             return a.start - b.start
           })
+
+          for (let i = 1; i < this.clips.length; i++) {
+            console.log(`set${i} to ${this.clips[i]}`)
+            this.clips[i]['conjunction'] = this.conjunctions[i - 1]
+          }
         } else {
           this.finit()
         }
@@ -545,10 +550,6 @@ export default {
       }
     },
     finit: function () {
-      if (!this.conjunctions) {
-        this.conjunctions = []
-      }
-
       if ((!this.init) || this.clips === []) {
         this.clips.push({
           start: 0,
@@ -557,8 +558,13 @@ export default {
           tagsentence: '',
           tagger: ''
         })
-        this.init = true
       }
+
+      if (!this.conjunctions) {
+        this.conjunctions = []
+      }
+
+      this.init = true
     },
     addbreakpoint: function () {
       if ("currentTime" in this.player.cache_) {
