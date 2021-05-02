@@ -532,7 +532,7 @@ export default {
               if (this.clips[i]['conjunction']) {
                 this.fullsentence += ` ${this.clips[i]['conjunction']},`
               }
-              console.log(this.clips)
+              // console.log(this.clips)
               this.fullsentence += this.clips[i]['tagsentence']
             }
           }
