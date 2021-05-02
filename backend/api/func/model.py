@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -14,6 +14,7 @@ class clip(BaseModel):
 class setInfo(BaseModel):
     hash: str
     length: float
+    full: Optional[str]
     clips: List[clip]
     conjunctions: List[str]
 

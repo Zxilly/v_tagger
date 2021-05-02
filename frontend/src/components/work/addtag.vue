@@ -174,8 +174,10 @@
               <td></td>
             </tr>
             <tr>
-              <td colspan="2">
-                {{ clips[switchCase].tagsentence }}
+              <td colspan="2" style="word-break: break-all;padding: 0">
+                <p style="padding: 16px;margin: 0">
+                  {{ clips[switchCase].tagsentence }}
+                </p>
               </td>
             </tr>
             <tr>
@@ -220,6 +222,17 @@
             </tbody>
           </v-simple-table>
         </v-card-text>
+      </v-card>
+      <v-card class="mt-6 pa-4">
+        <v-btn
+            class="mx-auto"
+            style="display: block"
+            text
+            x-large
+            @click.stop="dialog3=true"
+        >
+          Touch-ups
+        </v-btn>
       </v-card>
       <v-card class="mt-6 pa-4">
         <v-btn
@@ -345,6 +358,32 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog
+        v-model="dialog3"
+        persistent
+        max-width="600px"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="headline">Touch-up full sentence</span>
+        </v-card-title>
+        <v-card-text>
+          <v-textarea
+              label="Full Sentence"
+              v-model="fullsentence"
+          ></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+              text
+              @click="dialog3 = false"
+          >
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-row>
 </template>
 
@@ -366,6 +405,8 @@ export default {
     dialog0: false,
     dialog1: false,
     dialog2: false,
+    dialog3: false,
+    fullsentence: '',
     clip_start_tmp: Number,
     clip_end_tmp: Number,
     clip_tag_tmp: '',
@@ -482,6 +523,18 @@ export default {
           for (let i = 1; i < this.clips.length; i++) {
             // console.log(`set${i} to ${this.clips[i]}`)
             this.clips[i]['conjunction'] = this.conjunctions[i - 1]
+          }
+
+          if (data[2]['info']['full']) {
+            this.fullsentence = data[2]['info']['full']
+          } else {
+            for (let i = 0; i < this.clips.length; i++) {
+              if (this.clips[i]['conjunction']) {
+                this.fullsentence += ` ${this.clips[i]['conjunction']},`
+              }
+              console.log(this.clips)
+              this.fullsentence += this.clips[i]['tagsentence']
+            }
           }
         } else {
           this.finit()
@@ -635,7 +688,8 @@ export default {
           'hash': this.hash,
           'length': this.duartion,
           'clips': this.clips,
-          'conjunctions': this.conjunctions
+          'conjunctions': this.conjunctions,
+          'full': this.fullsentence,
         },
         'tagstatus': true,
         'markstatus': markstatus
