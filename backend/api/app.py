@@ -64,7 +64,7 @@ async def root():
 
 
 @app.get("/regcode")
-async def regcode(
+async def regCode(
         username: str = Query(...),
         session: str = Header(...)
 ):

@@ -10,11 +10,10 @@ from .model import setInfo
 
 
 def add(videos):
-    all = len(videos)
+    all_num = len(videos)
     success = 0
     failed = 0
     for one in videos:
-        record = VIDEO.select().where(VIDEO.hash == one.hash)
         if not VIDEO.get_or_none(VIDEO.hash == one.hash):
             info = {
                 "length": one.length,
@@ -26,7 +25,7 @@ def add(videos):
         else:
             failed += 1
             continue
-    if success + failed != all:
+    if success + failed != all_num:
         raise HTTPException(status_code=503, detail="WTF happened.")
     return [11, f"上传成功{success}个，忽略{failed}个"]
 
@@ -69,10 +68,10 @@ def setinfo(info: setInfo, tagstatus: bool, markstatus: bool):
 
 
 def getsentencehash():
-    if VIDEO.select().where(VIDEO.markstatus == 0 and VIDEO.tagstatus == 1).count() == 0:
+    if VIDEO.select().where((VIDEO.markstatus == 0) & (VIDEO.tagstatus == 1)).count() == 0:
         raise HTTPException(status_code=503, detail="No more sentence to mark.")
     rand_record = \
-        VIDEO.select().where(VIDEO.markstatus == 0 and VIDEO.tagstatus == 1).order_by(fn.Rand()).limit(1)[0]
+        VIDEO.select().where((VIDEO.markstatus == 0) & (VIDEO.tagstatus == 1)).order_by(fn.Rand()).limit(1)[0]
     return [10, "获取成功", rand_record.hash]
 
 
@@ -80,14 +79,5 @@ def getsentencehash():
 def gettags():
     with open('tag.json', 'r', encoding='UTF-8') as f:
         tags = json.loads(f.read())
-    # all_tags = []
-    # for btype in tags.keys():
-    #     # print(btype)
-    #     for stype in tags[btype].keys():
-    #         if not tags[btype][stype]:
-    #             all_tags.append(btype + '-' + stype)
-    #         else:
-    #             for ttag in tags[btype][stype]:
-    #                 all_tags.append(btype + '-' + stype + '-' + ttag)
 
     return tags
