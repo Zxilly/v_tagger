@@ -1,13 +1,12 @@
 import hashlib
 import json
 import uuid
-
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Callable
 
 import ffmpeg
 from fastapi import HTTPException
+from fastapi.encoders import jsonable_encoder
 
 from .db import USER, VIDEO, db
 from .init import init
@@ -59,6 +58,27 @@ def searchpath(path: str):
             VIDEO.create(hash=fileMD5, info=json.dumps(info), tagstatus=False, markstatus=False)
             handle_count += 1
     print("Handle %d files and ignore %d files" % (handle_count, ignore_count))
+
+
+def update_database():
+    if db.is_closed():
+        init()
+    records = VIDEO.select().where(True)
+    for record in records:
+        json_value = json.loads(record.info)
+        if "items" in json_value.keys():
+            continue
+        clips = json_value.pop("clips")
+        conjunctions = json_value.pop("conjunctions")
+        full = json_value.pop("full") if "full" in json_value.keys() else ""
+        json_value["items"] = [{
+            "clips": clips,
+            "conjunctions": conjunctions,
+            "full": full
+        }]
+        record.info = json.dumps(jsonable_encoder(json_value))
+        record.save()
+    db.close()
 
 
 def needAuth(username: str, session: str, func):
