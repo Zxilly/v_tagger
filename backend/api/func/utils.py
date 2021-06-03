@@ -82,6 +82,8 @@ def update_database():
             }]
 
         record.info = json.dumps(jsonable_encoder(json_value))
+        record.markstatus = 0
+
         record.save()
     db.close()
 

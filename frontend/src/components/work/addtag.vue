@@ -540,7 +540,7 @@ export default {
           this.finit()
         }
 
-        if (this.$route.path.indexOf('/work/marksentence/') !== -1) {
+        if (this.isMarkSentence) {
           for (const clip of this.clips) {
             clip['mark'] = {
               'accuracy': 0,
