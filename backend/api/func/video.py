@@ -17,10 +17,9 @@ def add(videos):
         if not VIDEO.get_or_none(VIDEO.hash == one.hash):
             info = {
                 "length": one.length,
-                "clips": [],
-                "conjunctions": []
+                "items": []
             }
-            VIDEO.create(hash=one.hash, info=json.dumps(info), tagstatus=False, markstatus=False)
+            VIDEO.create(hash=one.hash, info=json.dumps(info), tagstatus=0, markstatus=0)
             success += 1
         else:
             failed += 1
@@ -55,14 +54,13 @@ def setinfo(info: setInfo, tagstatus: bool, markstatus: bool):
         raise HTTPException(status_code=404, detail="Can not find the corresponding video to tag.")
     else:
         reqinfo = {
-            "length": info.length,
             "clips": info.clips,
             "conjunctions": info.conjunctions,
             "full": info.full
         }
         # print(info.clips)
         current_info = json.loads(record.info)
-        current_info.append(reqinfo)
+        current_info["items"].append(reqinfo)
         record.info = json.dumps(jsonable_encoder(current_info))
         record.tagstatus = tagstatus
         record.markstatus = markstatus
@@ -71,10 +69,10 @@ def setinfo(info: setInfo, tagstatus: bool, markstatus: bool):
 
 
 def getsentencehash():
-    if VIDEO.select().where((VIDEO.markstatus == 0) & (VIDEO.tagstatus == 1)).count() == 0:
+    if VIDEO.select().where(VIDEO.markstatus < VIDEO.tagstatus).count() == 0:
         raise HTTPException(status_code=503, detail="No more sentence to mark.")
     rand_record = \
-        VIDEO.select().where((VIDEO.markstatus == 0) & (VIDEO.tagstatus == 1)).order_by(fn.Rand()).limit(1)[0]
+        VIDEO.select().where(VIDEO.markstatus < VIDEO.tagstatus).order_by(fn.Rand()).limit(1)[0]
     return [10, "获取成功", rand_record.hash]
 
 
