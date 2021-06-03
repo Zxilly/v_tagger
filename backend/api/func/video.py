@@ -56,7 +56,7 @@ def setinfo(info: setInfo, tagstatus: bool, markstatus: bool):
         reqinfo = {
             "clips": info.clips,
             "conjunctions": info.conjunctions,
-            "full": info.full,
+            "full": info.full
         }
         # print(info.clips)
         current_info = json.loads(record.info)
