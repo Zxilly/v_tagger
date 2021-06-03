@@ -16,7 +16,7 @@ class clip(BaseModel):
     tag: str
     tagger: str
     tagsentence: str
-
+    mark: Optional[marks]
 
 class setInfo(BaseModel):
     hash: str
@@ -24,7 +24,7 @@ class setInfo(BaseModel):
     full: Optional[str]
     clips: List[clip]
     conjunctions: List[str]
-    mark: Optional[marks]
+
 
 
 class video(BaseModel):
