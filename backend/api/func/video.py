@@ -44,7 +44,7 @@ def getinfo(hashv):
 def gethash():
     if VIDEO.select().where(VIDEO.tagstatus < 5).count() == 0:
         raise HTTPException(status_code=503, detail="No more video to tag.")
-    rand_record = VIDEO.select().where(VIDEO.tagstatus == 0).order_by(fn.Rand()).limit(1)[0]
+    rand_record = VIDEO.select().where(VIDEO.tagstatus < 5).order_by(fn.Rand()).limit(1)[0]
     return [10, "获取成功", rand_record.hash]
 
 

@@ -71,11 +71,16 @@ def update_database():
         clips = json_value.pop("clips")
         conjunctions = json_value.pop("conjunctions")
         full = json_value.pop("full") if "full" in json_value.keys() else ""
-        json_value["items"] = [{
-            "clips": clips,
-            "conjunctions": conjunctions,
-            "full": full
-        }]
+
+        if record.tagstatus == 0:
+            json_value["items"] = []
+        else:
+            json_value["items"] = [{
+                "clips": clips,
+                "conjunctions": conjunctions,
+                "full": full
+            }]
+
         record.info = json.dumps(jsonable_encoder(json_value))
         record.save()
     db.close()
