@@ -36,7 +36,8 @@ def getinfo(hashv):
     return_value = {
         'hash': record[0].hash,
         'info': json.loads(record[0].info),
-        'tagstatus': record[0].tagstatus
+        'tagstatus': record[0].tagstatus,
+        'markstatus': record[0].markstatus
     }
     return [8, "获取成功", return_value]
 
@@ -48,7 +49,7 @@ def gethash():
     return [10, "获取成功", rand_record.hash]
 
 
-def setinfo(info: setInfo, tagstatus: bool, markstatus: bool):
+def setinfo(info: setInfo, tagstatus: int, markstatus: int):
     record = VIDEO.get_or_none(VIDEO.hash == info.hash)
     if not record:
         raise HTTPException(status_code=404, detail="Can not find the corresponding video to tag.")
@@ -59,8 +60,16 @@ def setinfo(info: setInfo, tagstatus: bool, markstatus: bool):
             "full": info.full
         }
         # print(info.clips)
+
         current_info = json.loads(record.info)
-        current_info["items"].append(reqinfo)
+
+        if tagstatus == record.tagstatus:
+            current_info["items"][markstatus - 1] = reqinfo
+        elif markstatus == record.markstatus:
+            current_info["items"].append(reqinfo)
+        else:
+            raise HTTPException(status_code=400, detail="You should update something.")
+
         record.info = json.dumps(jsonable_encoder(current_info))
         record.tagstatus = tagstatus
         record.markstatus = markstatus

@@ -52,18 +52,12 @@
         cols="4"
         v-if="isAddtag"
     >
-      <v-card class="mb-6 pa-4">
-        <v-btn
-            class="mx-auto"
-            style="display: block"
-            text
-            x-large
-            @click="addbreakpoint"
-        >
-          Add Breakpoint
-        </v-btn>
+      <v-card class="mb-6">
+        <v-card-title>
+          Add Tag {{ tagstatus + 1 }}/5
+        </v-card-title>
       </v-card>
-      <v-card>
+      <v-card class="mb-6">
         <v-card-title>Clip List</v-card-title>
         <v-card-text>
           <v-data-table
@@ -113,6 +107,17 @@
           </div>
         </v-card-text>
       </v-card>
+      <v-card class="mb-6 pa-4">
+        <v-btn
+            class="mx-auto"
+            style="display: block"
+            text
+            x-large
+            @click="addbreakpoint"
+        >
+          Add Breakpoint
+        </v-btn>
+      </v-card>
       <v-card class="mt-6 pa-4">
         <v-btn
             class="mx-auto"
@@ -132,7 +137,7 @@
       <v-card
           v-if="markdisplay"
       >
-        <v-card-title>Sentence Mark</v-card-title>
+        <v-card-title>Sentence Mark {{ markstatus + 1 }}/{{ tagstatus }}</v-card-title>
         <v-card-text>
           <div
               style="width: 100%"
@@ -317,7 +322,7 @@
               v-if="isMarkSentence"
               text
               color="blue darken-1"
-              @click="gotag"
+              @click="gomark"
           >
             Mark another video
           </v-btn>
@@ -395,6 +400,7 @@ export default {
   name: "addtag",
   data: () => ({
     saved: false,
+    index: undefined,
     markdisplay: false,
     clips: [],
     conjunctions: [],
@@ -418,6 +424,8 @@ export default {
     playerel: undefined,
     switchCase: 0,
     btnColor: [],
+    tagstatus: undefined,
+    markstatus: undefined,
     tablecfg: {
       headers: [
         {
@@ -499,7 +507,7 @@ export default {
           this.fileinited = true
           this.videodata = window.URL.createObjectURL(value)
         } else {
-          console.log(md5)
+          // console.log(md5)
           this.filetip = 'Please select correct video.'
         }
       }
@@ -510,10 +518,33 @@ export default {
           'hashv': this.hash
         }
       }).then((resp) => {
-        let data = resp.data
-        this.length = data[2]['info']['length']
-        this.clips = data[2]['info']['clips']
-        this.conjunctions = data[2]['info']['conjunctions']
+        let data = resp.data[2]
+
+        this.markstatus = data['markstatus']
+        this.tagstatus = data['tagstatus']
+
+        let info = data['info']
+        this.length = info['length']
+
+        let items = undefined
+
+        if (this.isAddtag) {
+          items = []
+        } else if (this.isMarkSentence) {
+          items = info['items']
+          this.index = this.markstatus
+        }
+
+        if (items && items.length > 0) {
+          console.log(this.index)
+          // eslint-disable-next-line no-debugger
+          debugger
+          this.clips = items[this.index]['clips']
+          this.conjunctions = items[this.index]['conjunctions']
+        } else {
+          this.clips = []
+          this.conjunctions = []
+        }
         // console.log(this.clips)
         if (this.clips.length > 0) {
           this.clips.sort((a, b) => {
@@ -525,8 +556,8 @@ export default {
             this.clips[i]['conjunction'] = this.conjunctions[i - 1]
           }
 
-          if (data[2]['info']['full']) {
-            this.fullsentence = data[2]['info']['full']
+          if (items[this.index]['full']) {
+            this.fullsentence = items[this.index]['full']
           } else {
             for (let i = 0; i < this.clips.length; i++) {
               if (this.clips[i]['conjunction']) {
@@ -553,6 +584,7 @@ export default {
         }
 
       }).catch((resp) => {
+        console.log(resp)
         let status = resp.response.status
         if (status === 404) {
           this.$bus.$emit('snackbar', ['Internal Error.', 'error'])
@@ -617,6 +649,8 @@ export default {
         this.conjunctions = []
       }
 
+      this.fullsentence = ''
+
       this.init = true
     },
     addbreakpoint: function () {
@@ -672,7 +706,6 @@ export default {
         }
       }
       // console.log(this.clips)
-      let markstatus = false
       if (this.isMarkSentence) {
         for (const item of this.clips) {
           if (!(item.mark.accuracy && item.mark.conherent && item.mark.relevance && item.mark.usability)) {
@@ -680,7 +713,11 @@ export default {
             return
           }
         }
-        markstatus = true
+        this.markstatus += 1
+      }
+
+      if (this.isAddtag) {
+        this.tagstatus += 1
       }
 
       this.$bus.$authedAxios.post('/video/setinfo', {
@@ -691,8 +728,8 @@ export default {
           'conjunctions': this.conjunctions,
           'full': this.fullsentence,
         },
-        'tagstatus': true,
-        'markstatus': markstatus
+        'tagstatus': this.tagstatus,
+        'markstatus': this.markstatus
       }).then((resp) => {
         let data = resp.data
         if (data[0] === 9) {
@@ -730,12 +767,14 @@ export default {
     gotag: function () {
       this.dialog1 = false
       this.fileinited = false
+      this.init = false
       this.$bus.$emit('gotag')
     },
     gomark: function () {
       this.dialog1 = false
       this.fileinited = false
-      this.$bus.$emit('goSentence')
+      this.init = false
+      this.$bus.$emit('gosentence')
     },
     exit: function () {
       // console.log("exit")
@@ -745,6 +784,7 @@ export default {
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
+      console.log("switch router")
       if (vm.$bus.authed) {
         vm.getInfo()
       } else {
