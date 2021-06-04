@@ -34,16 +34,6 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 
-# @app.on_event("startup")
-# def startup():
-#     db.db.connect()
-#
-#
-# @app.on_event("shutdown")
-# def shutdown():
-#     if not db.db.is_closed():
-#         db.db.close()
-
 async def reset_db_state():
     db.db._state._state.set(db_state_default.copy())
     db.db._state.reset()
@@ -99,10 +89,6 @@ async def video_add(
         session: str = Header(...),
         videos: List[model.video] = Body(..., embed=True)
 ):
-    # if utils.auth(username, session)[0] == 4:
-    #     return video.add(videos)
-    # else:
-    #     raise HTTPException(status_code=403, detail="Fobidden")
     return utils.needAuth(username, session, lambda: video.add(videos))
 
 
@@ -111,10 +97,6 @@ async def video_getinfo(
         username: str = Query(...),
         session: str = Header(...)
 ):
-    # if utils.auth(username, session)[0] == 4:
-    #     return video.gethash()
-    # else:
-    #     raise HTTPException(status_code=403, detail="Fobidden")
     return utils.needAuth(username, session, lambda: video.gethash())
 
 
@@ -123,10 +105,6 @@ async def video_getinfo(username: str = Query(...),
                         hashv: str = Query(...),
                         session: str = Header(...),
                         ):
-    # if utils.auth(username, session)[0] == 4:
-    #     return video.getinfo(hashv)
-    # else:
-    #     raise HTTPException(status_code=403, detail="Fobidden")
     return utils.needAuth(username, session, lambda: video.getinfo(hashv))
 
 
@@ -134,13 +112,9 @@ async def video_getinfo(username: str = Query(...),
 async def video_getinfo(username: str = Query(...),
                         session: str = Header(...),
                         info: model.setInfo = Body(...),
-                        tagstatus: Optional[bool] = Body(False, embed=True),
-                        markstatus: Optional[bool] = Body(False, embed=True)
+                        tagstatus: Optional[int] = Body(False, embed=True),
+                        markstatus: Optional[int] = Body(False, embed=True)
                         ):
-    # if utils.auth(username, session):
-    #     return video.setinfo(info, tagstatus, markstatus)
-    # else:
-    #     raise HTTPException(status_code=403, detail="Fobidden")
     return utils.needAuth(username, session, lambda: video.setinfo(info, tagstatus, markstatus))
 
 
@@ -149,10 +123,6 @@ async def video_getsentencehash(
         username: str = Query(...),
         session: str = Header(...)
 ):
-    # if utils.auth(username, session):
-    #     return video.getsentencehash()
-    # else:
-    #     raise HTTPException(status_code=403, detail="Fobidden")
     return utils.needAuth(username, session, lambda: video.getsentencehash())
 
 

@@ -207,7 +207,7 @@ export default {
           }
           //session 无效，跳转到 /user/login
         }
-      }).catch(()=>{
+      }).catch(() => {
         if (this.$route.path !== '/error') {
           this.$router.push('/error')
         }
@@ -244,6 +244,10 @@ export default {
     },
     getJob: function () {
       this.getHash().then(() => {
+        console.log(this.$route.path,'/work/addtag/' + this.hash)
+        if (this.$route.path !== '/') {
+          this.$router.push('/') // 要触发路由守卫
+        }
         this.$router.push('/work/addtag/' + this.hash)
       }).catch(() => {
         if (this.$route.path !== '/') {
@@ -261,6 +265,9 @@ export default {
         }
       }).then((hash) => {
         if (hash !== undefined) {
+          if (this.$route.path !== '/') {
+            this.$router.push('/') // 要触发路由守卫
+          }
           this.$router.push('/work/marksentence/' + hash)
         }
       })

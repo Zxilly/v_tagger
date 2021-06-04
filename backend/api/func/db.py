@@ -22,5 +22,5 @@ class USER(BaseModel):
 class VIDEO(BaseModel):
     hash = FixedCharField(max_length=35,primary_key=True)
     info = TextField()
-    tagstatus = BooleanField()
-    markstatus = BooleanField()
+    tagstatus = SmallIntegerField()
+    markstatus = SmallIntegerField()

@@ -26,24 +26,25 @@
       >
         Add videos
       </v-btn>
-      <v-text-field
-          style="max-width: 40%"
-          class="mx-auto mt-4"
-          v-model="hash"
-          :rules="[v => v.length === 32 || 'Hash should be 32 characters.']"
-          hint="Please input hash you want to review tag."
-          label="Review hash"
-      >
-        <template v-slot:append-outer>
-          <v-btn
-              text
-              style="display:block"
-              @click="goReviewTag"
-          >
-            Submit
-          </v-btn>
-        </template>
-      </v-text-field>
+<!--      <v-text-field-->
+<!--          style="max-width: 40%"-->
+<!--          class="mx-auto mt-4"-->
+<!--          v-model="hash"-->
+<!--          :rules="[v => v.length === 32 || 'Hash should be 32 characters.']"-->
+<!--          hint="Please input hash you want to review tag."-->
+<!--          label="Review hash"-->
+<!--      >-->
+<!--        <template v-slot:append-outer>-->
+<!--          <v-btn-->
+<!--              text-->
+<!--              style="display:block"-->
+<!--              @click="goReviewTag"-->
+<!--          >-->
+<!--            Submit-->
+<!--          </v-btn>-->
+<!--        </template>-->
+<!--      </v-text-field>-->
+<!--      Cannot support because of complicated data structure. -->
     </div>
   </div>
 </template>

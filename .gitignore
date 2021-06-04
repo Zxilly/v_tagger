@@ -11,3 +11,5 @@ gen
 venv/
 /backend/api/a.mp4
 *.pyc
+
+*.mp4
