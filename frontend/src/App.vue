@@ -244,7 +244,7 @@ export default {
     },
     getJob: function () {
       this.getHash().then(() => {
-        console.log(this.$route.path,'/work/addtag/' + this.hash)
+        // console.log(this.$route.path,'/work/addtag/' + this.hash)
         if (this.$route.path !== '/') {
           this.$router.push('/') // 要触发路由守卫
         }

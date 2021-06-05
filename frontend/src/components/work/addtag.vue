@@ -538,7 +538,7 @@ export default {
         if (items && items.length > 0) {
           console.log(this.index)
           // eslint-disable-next-line no-debugger
-          debugger
+          // debugger
           this.clips = items[this.index]['clips']
           this.conjunctions = items[this.index]['conjunctions']
         } else {

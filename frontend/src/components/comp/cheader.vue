@@ -4,7 +4,9 @@
       dark
       color="primary"
   >
-    <v-btn icon class="ml-1">
+    <v-btn icon class="ml-1"
+           @click="this.$router.push('/')"
+    >
       <v-icon>
         mdi-tag-multiple
       </v-icon>
@@ -25,7 +27,7 @@
       Logout
     </v-btn>
     <v-btn
-        v-if="this.$route.path === '/user/add'||this.$route.path.indexOf('/work/addtag/') !== -1"
+        v-if="this.$route.path === '/user/add'||this.$route.path.indexOf('/work/addtag/') !== -1||this.$route.path.indexOf('/work/marksentence/') !== -1"
         text
         @click="goback"
     >
